@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+        <variable
+            name="cardData"
+            type="com.example.autofill.dataClass.CardDataClass" />
+    </data>
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".fragments.DisplayCardFragment">
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="10dp"
+        app:cardUseCompatPadding="true"
+        app:contentPadding="10dp">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_marginStart="5dp"
+                    android:hint="@string/bankName"
+                    android:text="@{cardData.bankName}"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:inputType="textCapCharacters" />
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginEnd="5dp"
+                    android:text="@{cardData.cardType}"
+                    android:hint="@string/cardType"
+                    android:textStyle="italic"/>
+            </RelativeLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="20dp">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@{cardData.cardNo1}"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:inputType="number"
+                    android:maxLength="4"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp" />
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@{cardData.cardNo2}"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:inputType="number"
+                    android:maxLength="4"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp" />
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@{cardData.cardNo3}"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:inputType="number"
+                    android:maxLength="4"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp" />
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@{cardData.cardNo4}"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:inputType="number"
+                    android:maxLength="4"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"/>
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="20dp">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@{cardData.name}"
+                    android:textSize="20sp"
+                    android:inputType="textCapCharacters"
+                    android:hint="@string/holderName"
+                    android:gravity="center_horizontal" />
+            </LinearLayout>
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_marginStart="5dp"
+                    android:orientation="horizontal">
+                    <com.google.android.material.textview.MaterialTextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/Validity"
+                        android:layout_marginRight="5dp" />
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@{cardData.month}"
+                        android:inputType="number"
+                        android:hint="@string/mm"
+                        android:maxLength="2"/>
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="/"
+                        android:textSize="20sp" />
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@{cardData.year}"
+                        android:inputType="number"
+                        android:hint="@string/yy"
+                        android:maxLength="2"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginEnd="5dp"
+                    android:orientation="horizontal">
+                    <com.google.android.material.textview.MaterialTextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/cvv"
+                        android:layout_marginRight="5dp" />
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@{cardData.cvv}"
+                        android:inputType="number"
+                        android:maxLength="3"
+                        android:textStyle="italic"
+                        android:hint="@string/cvv" />
+                </LinearLayout>
+            </RelativeLayout>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/cardDecrypt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/decrypt"
+                android:layout_marginTop="20dp"/>
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+</FrameLayout>
+</layout>

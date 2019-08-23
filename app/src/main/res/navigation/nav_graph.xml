@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    app:startDestination="@id/home_menu">
+
+    <fragment
+        android:id="@id/password_menu"
+        android:name="com.example.autofill.fragments.PasswordFragment"
+        android:label="Password"
+        tools:layout="@layout/fragment_password" >
+        <action
+            android:id="@+id/action_password_menu_to_newPasswordFragment"
+            app:destination="@id/newPasswordFragment" />
+        <action
+            android:id="@+id/action_password_menu_to_displayPasswordFragment"
+            app:destination="@id/displayPasswordFragment" />
+    </fragment>
+    <fragment
+        android:id="@id/card_menu"
+        android:name="com.example.autofill.fragments.CardFragment"
+        android:label="Card"
+        tools:layout="@layout/fragment_card" >
+        <action
+            android:id="@+id/action_card_menu_to_newCardFragment"
+            app:destination="@id/newCardFragment" />
+        <action
+            android:id="@+id/action_card_menu_to_displayCardFragment"
+            app:destination="@id/displayCardFragment" />
+    </fragment>
+    <fragment
+        android:id="@id/address_menu"
+        android:name="com.example.autofill.fragments.AddressFragment"
+        android:label="Address"
+        tools:layout="@layout/fragment_address" />
+    <fragment
+        android:id="@id/home_menu"
+        android:name="com.example.autofill.fragments.HomeFragment"
+        android:label="Home"
+        tools:layout="@layout/fragment_home" />
+    <fragment
+        android:id="@+id/newPasswordFragment"
+        android:name="com.example.autofill.fragments.NewPasswordFragment"
+        android:label="Create New Password"
+        tools:layout="@layout/fragment_new_password" />
+    <fragment
+        android:id="@+id/displayPasswordFragment"
+        android:name="com.example.autofill.fragments.DisplayPasswordFragment"
+        android:label="Password Details"
+        tools:layout="@layout/fragment_display_password">
+        <argument
+            android:name="passwordData"
+            app:argType="com.example.autofill.dataClass.PasswordDataClass" />
+    </fragment>
+    <fragment
+        android:id="@+id/displayCardFragment"
+        android:name="com.example.autofill.fragments.DisplayCardFragment"
+        android:label="Card Details"
+        tools:layout="@layout/fragment_display_card" >
+        <argument
+            android:name="cardData"
+            app:argType="com.example.autofill.dataClass.CardDataClass" />
+    </fragment>
+    <fragment
+        android:id="@+id/newCardFragment"
+        android:name="com.example.autofill.fragments.NewCardFragment"
+        android:label="Add new Card"
+        tools:layout="@layout/fragment_new_card" />
+</navigation>

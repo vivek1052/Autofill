@@ -1,0 +1,28 @@
+<resources>
+    <string name="app_name">Autofill</string>
+    <string name="nav_header_title">AUTOFILL</string>
+    <string name="nav_header_subtitle">Secure your Data</string>
+    <string name="nav_header_desc">Navigation header</string>
+
+    <string name="menu_share">Share</string>
+    <string name="menu_send">Send</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="password">Password</string>
+    <string name="card">Card</string>
+    <string name="address">Address</string>
+    <string name="home">Home</string>
+    <string name="masterPasswordPrompt">Enter Master Password</string>
+    <string name="encrypt">Encrypt</string>
+    <string name="save">Save</string>
+    <string name="decrypt">Decrypt</string>
+    <string name="Validity">Valid Thru</string>
+    <string name="cvv">CVV</string>
+    <string name="cardType">Card Type</string>
+    <string name="holderName">Card holder Name</string>
+    <string name="mm">mm</string>
+    <string name="yy">yy</string>
+    <string name="bankName">Bank Name</string>
+    <string name="user_name">User Name</string>
+</resources>
