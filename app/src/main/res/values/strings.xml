@@ -25,4 +25,5 @@
     <string name="yy">yy</string>
     <string name="bankName">Bank Name</string>
     <string name="user_name">User Name</string>
+    <string name="pickerMessage">Autofill Master Password</string>
 </resources>

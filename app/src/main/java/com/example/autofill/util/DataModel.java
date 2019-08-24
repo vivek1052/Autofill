@@ -23,7 +23,7 @@ public class DataModel {
 
     private Context context;
     private DriveDataModel driveDataModel;
-    private DBHelper dbHelper;
+    public DBHelper dbHelper;
 
    public DataModel(Context context){
        this.context = context;
