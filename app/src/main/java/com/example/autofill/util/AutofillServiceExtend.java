@@ -4,8 +4,6 @@ import android.app.PendingIntent;
 import android.app.assist.AssistStructure;
 import android.content.Intent;
 import android.content.IntentSender;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.CancellationSignal;
 import android.service.autofill.AutofillService;
@@ -18,14 +16,11 @@ import android.service.autofill.SaveRequest;
 import android.text.InputType;
 import android.view.View;
 import android.view.autofill.AutofillId;
-import android.view.autofill.AutofillManager;
 import android.widget.RemoteViews;
 
-import com.example.autofill.AuthenticateAutoFillService;
+import com.example.autofill.FillResposeActivity;
 import com.example.autofill.OnSaveAutoFillActivity;
-import com.example.autofill.R;
 import com.example.autofill.dataClass.ParsedStructure;
-import com.example.autofill.dataClass.PasswordDataClass;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,11 +42,11 @@ public class AutofillServiceExtend extends AutofillService {
         for (int i = 0; i < passedNodes.size(); i++) {
             autofillId[i] = passedNodes.get(i).viewNode.getAutofillId();
             parsedPassedNodes.add(new ParsedStructure(passedNodes.get(i).viewNode.getAutofillId(),
-                    passedNodes.get(i).autoFillHint));
+                    passedNodes.get(i).autoFillHint,passedNodes.get(i).viewNode.getText().toString()));
         }
         RemoteViews authPresentation = new RemoteViews(getPackageName(), android.R.layout.simple_list_item_1);
         authPresentation.setTextViewText(android.R.id.text1, "Autofill Master Password");
-        Intent authIntent = new Intent(this, AuthenticateAutoFillService.class);
+        Intent authIntent = new Intent(this, FillResposeActivity.class);
 
         Bundle bundle = new Bundle();
         bundle.putParcelableArrayList("passedNodes", parsedPassedNodes);
@@ -78,33 +73,15 @@ public class AutofillServiceExtend extends AutofillService {
         AssistStructure structure = context.get(context.size() - 1).getStructure();
         List<viewNodeDataClass> passedNodes = traverseStructure(structure);
         String packageName = structure.getActivityComponent().getPackageName();
-        String userName = null;
-        String password = null;
-        String phone = null;
-        for (viewNodeDataClass vd:passedNodes){
-            switch (vd.autoFillHint){
-                case View.AUTOFILL_HINT_USERNAME:
-                    userName = vd.viewNode.getText().toString();
-                    break;
-                case View.AUTOFILL_HINT_PASSWORD:
-                    password = vd.viewNode.getText().toString();
-                    break;
-                case View.AUTOFILL_HINT_PHONE:
-                    phone = vd.viewNode.getText().toString();
-                    break;
-            }
+        ArrayList<ParsedStructure> parsedPassedNodes = new ArrayList<>();
+        for (int i = 0; i < passedNodes.size(); i++) {
+            parsedPassedNodes.add(new ParsedStructure(passedNodes.get(i).viewNode.getAutofillId(),
+                    passedNodes.get(i).autoFillHint,passedNodes.get(i).viewNode.getText().toString()));
         }
+
         Bundle bundle = new Bundle();
-        if (userName!=null && password!=null){
-            try {
-                ApplicationInfo ai = getPackageManager().getApplicationInfo(packageName,0);
-                String service = getPackageManager().getApplicationLabel(ai).toString();
-                bundle.putSerializable("passwordData",new PasswordDataClass(
-                        1,service,packageName,userName,password));
-            } catch (PackageManager.NameNotFoundException e) {
-                e.printStackTrace();
-            }
-        }
+        bundle.putParcelableArrayList("passedNodes", parsedPassedNodes);
+        bundle.putString("packageName", packageName);
 
         Intent saveIntent = new Intent(this, OnSaveAutoFillActivity.class);
         saveIntent.putExtra("Data",bundle);
@@ -139,6 +116,10 @@ public class AutofillServiceExtend extends AutofillService {
             } else if (CompareStringBase(String.valueOf(viewNode.getHint()), GenericStringBase.username)) {
                 passedNodes.add(new viewNodeDataClass(viewNode, View.AUTOFILL_HINT_USERNAME));
             } else if (CompareStringBase(String.valueOf(viewNode.getHint()), GenericStringBase.password)) {
+                passedNodes.add(new viewNodeDataClass(viewNode, View.AUTOFILL_HINT_PASSWORD));
+            } else if (CompareStringBase(String.valueOf(viewNode.getIdEntry()), GenericStringBase.username)) {
+                passedNodes.add(new viewNodeDataClass(viewNode, View.AUTOFILL_HINT_USERNAME));
+            } else if (CompareStringBase(String.valueOf(viewNode.getIdEntry()), GenericStringBase.password)) {
                 passedNodes.add(new viewNodeDataClass(viewNode, View.AUTOFILL_HINT_PASSWORD));
             } else if (viewNode.getInputType() == InputType.TYPE_TEXT_VARIATION_PASSWORD ||
                     viewNode.getInputType() == InputType.TYPE_NUMBER_VARIATION_PASSWORD ||

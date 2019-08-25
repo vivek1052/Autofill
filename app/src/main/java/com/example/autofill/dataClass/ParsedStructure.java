@@ -7,15 +7,30 @@ import android.view.autofill.AutofillId;
 public class ParsedStructure implements Parcelable {
     public AutofillId nodeId;
     public String autofillhint;
+    public String text;
 
-    public ParsedStructure(AutofillId nodeId, String autofillhint){
+    public ParsedStructure(AutofillId nodeId, String autofillhint, String text){
         this.nodeId = nodeId;
         this.autofillhint = autofillhint;
+        this.text = text;
     }
 
     protected ParsedStructure(Parcel in) {
         nodeId = in.readParcelable(AutofillId.class.getClassLoader());
         autofillhint = in.readString();
+        text = in.readString();
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeParcelable(nodeId, flags);
+        dest.writeString(autofillhint);
+        dest.writeString(text);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
     }
 
     public static final Creator<ParsedStructure> CREATOR = new Creator<ParsedStructure>() {
@@ -30,19 +45,16 @@ public class ParsedStructure implements Parcelable {
         }
     };
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeParcelable(nodeId, i);
-        parcel.writeString(autofillhint);
-    }
-
     public AutofillId getNodeId() {
         return nodeId;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
     }
 
     public void setNodeId(AutofillId nodeId) {
