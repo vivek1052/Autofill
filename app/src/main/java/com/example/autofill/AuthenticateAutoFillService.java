@@ -14,9 +14,9 @@ import android.widget.RemoteViews;
 
 import com.example.autofill.dataClass.ParsedStructure;
 import com.example.autofill.dataClass.PasswordDataClass;
+import com.example.autofill.util.Authenticate;
 import com.example.autofill.util.CipherClass;
 import com.example.autofill.util.DataModel;
-import com.example.autofill.util.MasterPasswrordPrompt;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -30,11 +30,10 @@ import javax.crypto.NoSuchPaddingException;
 import static android.view.autofill.AutofillManager.EXTRA_AUTHENTICATION_RESULT;
 
 public class AuthenticateAutoFillService extends AppCompatActivity {
-    AutofillId usernameNode, passwordNode;
+    AutofillId usernameNode, passwordNode, phoneNode;
     DataModel dataModel;
     CipherClass cipherClass;
     List<PasswordDataClass> validPassword = new ArrayList<>();
-    String maspass;
     FillResponse.Builder fillResponseBuilder;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,10 +55,12 @@ public class AuthenticateAutoFillService extends AppCompatActivity {
                 case View.AUTOFILL_HINT_PASSWORD:
                     passwordNode = ps.nodeId;
                     break;
+                case View.AUTOFILL_HINT_PHONE:
+                    phoneNode = ps.nodeId;
             }
         }
 
-        if (passwordNode!=null && usernameNode!=null){
+        if (usernameNode!=null){
             List<PasswordDataClass> passwordData = new ArrayList<>(dataModel.dbHelper.getAllPassword());
             for (PasswordDataClass pd:passwordData){
                 if (pd.subText.equals(packageName)){
@@ -67,28 +68,20 @@ public class AuthenticateAutoFillService extends AppCompatActivity {
                 }
             }
             if (validPassword.size()>0){
-                final MasterPasswrordPrompt mp = new MasterPasswrordPrompt(this,R.string.decrypt);
-                mp.setOnclickListener(new View.OnClickListener() {
+                Authenticate authenticate = new Authenticate(this,R.string.decrypt);
+                authenticate.setListener(new Authenticate.authCallBack() {
                     @Override
-                    public void onClick(View view) {
-                        if (mp.getMasterPassword()==null){
-                            return;
-                        }
-                        maspass = mp.getMasterPassword().getText().toString();
+                    public void onAuthenticationSuccess(String maspass) {
                         try {
-                            fillResponsePassword();
-                        } catch (IllegalBlockSizeException e) {
-                            e.printStackTrace();
-                        } catch (InvalidKeyException e) {
-                            e.printStackTrace();
-                        } catch (BadPaddingException e) {
-                            e.printStackTrace();
-                        } catch (NoSuchAlgorithmException e) {
-                            e.printStackTrace();
-                        } catch (NoSuchPaddingException e) {
+                            fillResponsePassword(maspass);
+                        } catch (IllegalBlockSizeException | InvalidKeyException | BadPaddingException | NoSuchAlgorithmException | NoSuchPaddingException e) {
                             e.printStackTrace();
                         }
-                        mp.getAlertDialog().dismiss();
+                    }
+
+                    @Override
+                    public void onAuthenticationFailed() {
+
                     }
                 });
             }else {
@@ -102,7 +95,7 @@ public class AuthenticateAutoFillService extends AppCompatActivity {
 
     }
 
-    private void fillResponsePassword() throws IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchAlgorithmException, NoSuchPaddingException {
+    private void fillResponsePassword(String maspass) throws IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchAlgorithmException, NoSuchPaddingException {
 
         for (PasswordDataClass pd:validPassword){
             fillResponseBuilder.addDataset(new Dataset.Builder()

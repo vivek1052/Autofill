@@ -18,6 +18,7 @@ import com.example.autofill.MainActivity;
 import com.example.autofill.R;
 import com.example.autofill.dataClass.PasswordDataClass;
 import com.example.autofill.databinding.FragmentDisplayPasswordBinding;
+import com.example.autofill.util.Authenticate;
 import com.example.autofill.util.Contract;
 import com.example.autofill.util.MasterPasswrordPrompt;
 
@@ -43,8 +44,7 @@ public class DisplayPasswordFragment extends Fragment implements View.OnClickLis
     private PasswordDataClass passwordData;
     FragmentDisplayPasswordBinding binding = null;
     MainActivity mainActivity = null;
-    MasterPasswrordPrompt prompt = null;
-
+    Authenticate authenticate = null;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -81,31 +81,23 @@ public class DisplayPasswordFragment extends Fragment implements View.OnClickLis
     @Override
     public void onClick(View view) {
         if (view.getId()==R.id.passwordDecrypt){
-            prompt = new MasterPasswrordPrompt(mainActivity,R.string.decrypt);
-            prompt.setOnclickListener(new View.OnClickListener() {
+            authenticate = new Authenticate(mainActivity,R.string.decrypt);
+            authenticate.setListener(new Authenticate.authCallBack() {
                 @Override
-                public void onClick(View view) {
-                    if (prompt.getMasterPassword()==null){
-                        return;
-                    }
-                    String mastPass = prompt.getMasterPassword().getText().toString();
+                public void onAuthenticationSuccess(String maspass) {
                     try {
-                        passwordData.username = mainActivity.cipherClass.decrypt(passwordData.username,mastPass);
-                        passwordData.password = mainActivity.cipherClass.decrypt(passwordData.password,mastPass);
+                        passwordData.username = mainActivity.cipherClass.decrypt(passwordData.username,maspass);
+                        passwordData.password = mainActivity.cipherClass.decrypt(passwordData.password,maspass);
                         binding.setPasswordData(passwordData);
                         binding.passwordDecrypt.setVisibility(View.GONE);
-                        prompt.getAlertDialog().dismiss();
-                    } catch (NoSuchAlgorithmException e) {
-                        e.printStackTrace();
-                    } catch (NoSuchPaddingException e) {
-                        e.printStackTrace();
-                    } catch (InvalidKeyException e) {
-                        e.printStackTrace();
-                    } catch (BadPaddingException e) {
-                        e.printStackTrace();
-                    } catch (IllegalBlockSizeException e) {
+                    } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
                         e.printStackTrace();
                     }
+                }
+
+                @Override
+                public void onAuthenticationFailed() {
+
                 }
             });
         }

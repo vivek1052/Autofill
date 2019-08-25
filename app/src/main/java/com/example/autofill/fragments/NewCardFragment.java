@@ -17,7 +17,9 @@ import com.example.autofill.R;
 import com.example.autofill.dataClass.CardDataClass;
 import com.example.autofill.dataClass.PasswordDataClass;
 import com.example.autofill.databinding.FragmentNewCardBinding;
+import com.example.autofill.util.Authenticate;
 import com.example.autofill.util.MasterPasswrordPrompt;
+import com.google.android.gms.auth.api.Auth;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -51,14 +53,10 @@ public class NewCardFragment extends Fragment implements View.OnClickListener{
     @Override
     public void onClick(View view) {
         if (view.getId()==binding.cardSave.getId()){
-            final MasterPasswrordPrompt mp = new MasterPasswrordPrompt(mainActivity, R.string.encrypt);
-            mp.setOnclickListener(new View.OnClickListener() {
+            Authenticate authenticate = new Authenticate(mainActivity,R.string.encrypt);
+            authenticate.setListener(new Authenticate.authCallBack() {
                 @Override
-                public void onClick(View view) {
-                    if (mp.getMasterPassword() == null) {
-                        return;
-                    }
-                    String mastPass = mp.getMasterPassword().getText().toString();
+                public void onAuthenticationSuccess(String mastPass) {
                     CardDataClass newCardData = null;
                     try {
                         String cardNo_1 = (mainActivity.cipherClass.encrypt(binding.cardNo1.getText().toString(), mastPass));
@@ -71,23 +69,16 @@ public class NewCardFragment extends Fragment implements View.OnClickListener{
                         newCardData = new CardDataClass(1, binding.bankName.getText().toString(),
                                 binding.cardType.getText().toString(), binding.holderName.getText().toString(),
                                 cardNo_1, cardNo_2, cardNo_3, cardNo_4, month, year, cvv);
-                    } catch (NoSuchAlgorithmException e) {
-                        e.printStackTrace();
-                    } catch (NoSuchPaddingException e) {
-                        e.printStackTrace();
-                    } catch (InvalidKeyException e) {
-                        e.printStackTrace();
-                    } catch (BadPaddingException e) {
-                        e.printStackTrace();
-                    } catch (IllegalBlockSizeException e) {
+                    } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
                         e.printStackTrace();
                     }
-
                     mainActivity.dataModel.addNewCard(newCardData);
-                    mp.getAlertDialog().dismiss();
                     mainActivity.dataModel.triggerCardDataUpdated();
                     mainActivity.navController.navigateUp();
                 }
+
+                @Override
+                public void onAuthenticationFailed() { }
             });
         }
     }

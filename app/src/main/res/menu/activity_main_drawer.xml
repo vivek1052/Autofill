@@ -20,6 +20,10 @@
             android:id="@+id/address_menu"
             android:icon="@drawable/address"
             android:title="@string/address" />
+        <item
+            android:id="@+id/settings_menu"
+            android:icon="@drawable/settings"
+            android:title="@string/settings" />
     </group>
 
     <item android:title="Communicate">

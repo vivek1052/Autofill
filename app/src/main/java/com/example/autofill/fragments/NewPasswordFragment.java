@@ -19,6 +19,7 @@ import com.example.autofill.adapter.ServiceSuggestAdapter;
 import com.example.autofill.dataClass.InstalledApps;
 import com.example.autofill.dataClass.PasswordDataClass;
 import com.example.autofill.databinding.FragmentNewPasswordBinding;
+import com.example.autofill.util.Authenticate;
 import com.example.autofill.util.MasterPasswrordPrompt;
 
 import java.security.InvalidKeyException;
@@ -64,14 +65,10 @@ public class NewPasswordFragment extends Fragment implements View.OnClickListene
                 binding.service.setError("Cant be empty");
                 return;
             }
-            final MasterPasswrordPrompt mp = new MasterPasswrordPrompt(mainActivity, R.string.encrypt);
-            mp.setOnclickListener(new View.OnClickListener() {
+            Authenticate authenticate = new Authenticate(mainActivity,R.string.encrypt);
+            authenticate.setListener(new Authenticate.authCallBack() {
                 @Override
-                public void onClick(View view) {
-                    if (mp.getMasterPassword() == null) {
-                        return;
-                    }
-                    String mastPass = mp.getMasterPassword().getText().toString();
+                public void onAuthenticationSuccess(String mastPass) {
                     String encUsername = null;
                     String encPassword = null;
                     try {
@@ -79,23 +76,19 @@ public class NewPasswordFragment extends Fragment implements View.OnClickListene
                                 mastPass);
                         encPassword = mainActivity.cipherClass.encrypt(binding.password.getText().toString(),
                                 mastPass);
-                    } catch (NoSuchAlgorithmException e) {
-                        e.printStackTrace();
-                    } catch (NoSuchPaddingException e) {
-                        e.printStackTrace();
-                    } catch (InvalidKeyException e) {
-                        e.printStackTrace();
-                    } catch (BadPaddingException e) {
-                        e.printStackTrace();
-                    } catch (IllegalBlockSizeException e) {
+                    } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
                         e.printStackTrace();
                     }
                     PasswordDataClass newPassword = new PasswordDataClass(1, binding.service.getText().toString(),
                             binding.subtext.getText().toString(), encUsername, encPassword);
                     mainActivity.dataModel.addNewPassword(newPassword);
-                    mp.getAlertDialog().dismiss();
                     mainActivity.dataModel.triggerPasswordDataUpdated();
                     mainActivity.navController.navigateUp();
+                }
+
+                @Override
+                public void onAuthenticationFailed() {
+
                 }
             });
         }

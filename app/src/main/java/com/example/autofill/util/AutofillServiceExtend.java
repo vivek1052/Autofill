@@ -4,6 +4,8 @@ import android.app.PendingIntent;
 import android.app.assist.AssistStructure;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.CancellationSignal;
 import android.service.autofill.AutofillService;
@@ -16,10 +18,14 @@ import android.service.autofill.SaveRequest;
 import android.text.InputType;
 import android.view.View;
 import android.view.autofill.AutofillId;
+import android.view.autofill.AutofillManager;
 import android.widget.RemoteViews;
 
 import com.example.autofill.AuthenticateAutoFillService;
+import com.example.autofill.OnSaveAutoFillActivity;
+import com.example.autofill.R;
 import com.example.autofill.dataClass.ParsedStructure;
+import com.example.autofill.dataClass.PasswordDataClass;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,21 +38,26 @@ public class AutofillServiceExtend extends AutofillService {
         List<FillContext> context = fillRequest.getFillContexts();
         AssistStructure structure = context.get(context.size() - 1).getStructure();
         String packageName = structure.getActivityComponent().getPackageName();
-        ArrayList<ParsedStructure> passedNodes = traverseStructure(structure);
-        AutofillId autofillId[] = new AutofillId[passedNodes.size()];
-        for (int i=0; i<passedNodes.size();i++){
-            autofillId[i] = passedNodes.get(i).nodeId;
+        if (CompareStringBase(packageName, GenericStringBase.restrictedPackages)) {
+            return;
+        }
+        List<viewNodeDataClass> passedNodes = traverseStructure(structure);
+        AutofillId[] autofillId = new AutofillId[passedNodes.size()];
+        ArrayList<ParsedStructure> parsedPassedNodes = new ArrayList<>();
+        for (int i = 0; i < passedNodes.size(); i++) {
+            autofillId[i] = passedNodes.get(i).viewNode.getAutofillId();
+            parsedPassedNodes.add(new ParsedStructure(passedNodes.get(i).viewNode.getAutofillId(),
+                    passedNodes.get(i).autoFillHint));
         }
         RemoteViews authPresentation = new RemoteViews(getPackageName(), android.R.layout.simple_list_item_1);
         authPresentation.setTextViewText(android.R.id.text1, "Autofill Master Password");
         Intent authIntent = new Intent(this, AuthenticateAutoFillService.class);
 
         Bundle bundle = new Bundle();
-        bundle.putParcelableArrayList("passedNodes",passedNodes);
-        bundle.putString("packageName",packageName);
-//        authIntent.putExtra("packageName", packageName);
-//        authIntent.putParcelableArrayListExtra("passedNodes",passedNodes);
-        authIntent.putExtra("Data",bundle);
+        bundle.putParcelableArrayList("passedNodes", parsedPassedNodes);
+        bundle.putString("packageName", packageName);
+
+        authIntent.putExtra("Data", bundle);
         IntentSender intentSender = PendingIntent.getActivity(
                 this,
                 1001,
@@ -65,13 +76,50 @@ public class AutofillServiceExtend extends AutofillService {
         // Get the structure from the request
         List<FillContext> context = saveRequest.getFillContexts();
         AssistStructure structure = context.get(context.size() - 1).getStructure();
-        ArrayList<ParsedStructure> passedNodes = traverseStructure(structure);
-        saveCallback.onSuccess();
+        List<viewNodeDataClass> passedNodes = traverseStructure(structure);
+        String packageName = structure.getActivityComponent().getPackageName();
+        String userName = null;
+        String password = null;
+        String phone = null;
+        for (viewNodeDataClass vd:passedNodes){
+            switch (vd.autoFillHint){
+                case View.AUTOFILL_HINT_USERNAME:
+                    userName = vd.viewNode.getText().toString();
+                    break;
+                case View.AUTOFILL_HINT_PASSWORD:
+                    password = vd.viewNode.getText().toString();
+                    break;
+                case View.AUTOFILL_HINT_PHONE:
+                    phone = vd.viewNode.getText().toString();
+                    break;
+            }
+        }
+        Bundle bundle = new Bundle();
+        if (userName!=null && password!=null){
+            try {
+                ApplicationInfo ai = getPackageManager().getApplicationInfo(packageName,0);
+                String service = getPackageManager().getApplicationLabel(ai).toString();
+                bundle.putSerializable("passwordData",new PasswordDataClass(
+                        1,service,packageName,userName,password));
+            } catch (PackageManager.NameNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+
+        Intent saveIntent = new Intent(this, OnSaveAutoFillActivity.class);
+        saveIntent.putExtra("Data",bundle);
+        IntentSender intentSender = PendingIntent.getActivity(
+                this,
+                1001,
+                saveIntent,
+                PendingIntent.FLAG_CANCEL_CURRENT
+        ).getIntentSender();
+        saveCallback.onSuccess(intentSender);
     }
 
 
-    public ArrayList<ParsedStructure> traverseStructure(AssistStructure structure) {
-        ArrayList<ParsedStructure> passedNode = new ArrayList<ParsedStructure>();
+    public List<viewNodeDataClass> traverseStructure(AssistStructure structure) {
+        List<viewNodeDataClass> passedNode = new ArrayList<>();
         int nodes = structure.getWindowNodeCount();
 
         for (int i = 0; i < nodes; i++) {
@@ -82,35 +130,25 @@ public class AutofillServiceExtend extends AutofillService {
         return passedNode;
     }
 
-    public ArrayList<ParsedStructure> traverseNode(AssistStructure.ViewNode viewNode) {
-        ArrayList<ParsedStructure> passedNodes = new ArrayList<ParsedStructure>();
+    public List<viewNodeDataClass> traverseNode(AssistStructure.ViewNode viewNode) {
+        List<viewNodeDataClass> passedNodes = new ArrayList<>();
         if (viewNode.getClassName().contains("EditText")) {
             if (viewNode.getAutofillHints() != null && viewNode.getAutofillHints().length > 0) {
                 // If the client app provides auto fill hints, you can obtain them using:
-                passedNodes.add(new ParsedStructure(viewNode.getAutofillId(), viewNode.getAutofillHints()[0]));
-            } else if (viewNode.getText() != null && viewNode.getText().toString().length() > 0) {
-                if (CompareStringBase(viewNode.getText().toString(), GenericStringBase.username)) {
-                    passedNodes.add(new ParsedStructure(viewNode.getAutofillId(), View.AUTOFILL_HINT_USERNAME));
-                }
-                if (CompareStringBase(viewNode.getText().toString(), GenericStringBase.password)) {
-                    passedNodes.add(new ParsedStructure(viewNode.getAutofillId(), View.AUTOFILL_HINT_PASSWORD));
-                }
-            } else if (viewNode.getHint() != null && viewNode.getHint().length() > 0) {
-                if (CompareStringBase(viewNode.getHint(), GenericStringBase.username)) {
-                    passedNodes.add(new ParsedStructure(viewNode.getAutofillId(), View.AUTOFILL_HINT_USERNAME));
-                }
-                if (CompareStringBase(viewNode.getHint(), GenericStringBase.password)) {
-                    passedNodes.add(new ParsedStructure(viewNode.getAutofillId(), View.AUTOFILL_HINT_PASSWORD));
-                }
+                passedNodes.add(new viewNodeDataClass(viewNode, viewNode.getAutofillHints()[0]));
+            } else if (CompareStringBase(String.valueOf(viewNode.getHint()), GenericStringBase.username)) {
+                passedNodes.add(new viewNodeDataClass(viewNode, View.AUTOFILL_HINT_USERNAME));
+            } else if (CompareStringBase(String.valueOf(viewNode.getHint()), GenericStringBase.password)) {
+                passedNodes.add(new viewNodeDataClass(viewNode, View.AUTOFILL_HINT_PASSWORD));
             } else if (viewNode.getInputType() == InputType.TYPE_TEXT_VARIATION_PASSWORD ||
                     viewNode.getInputType() == InputType.TYPE_NUMBER_VARIATION_PASSWORD ||
                     viewNode.getInputType() == InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD) {
-                passedNodes.add(new ParsedStructure(viewNode.getAutofillId(), View.AUTOFILL_HINT_PASSWORD));
+                passedNodes.add(new viewNodeDataClass(viewNode, View.AUTOFILL_HINT_PASSWORD));
             } else if (viewNode.getInputType() == InputType.TYPE_CLASS_PHONE ||
                     viewNode.getInputType() == InputType.TYPE_TEXT_VARIATION_PHONETIC) {
-                passedNodes.add(new ParsedStructure(viewNode.getAutofillId(), View.AUTOFILL_HINT_PHONE));
+                passedNodes.add(new viewNodeDataClass(viewNode, View.AUTOFILL_HINT_PHONE));
             } else {
-                passedNodes.add(new ParsedStructure(viewNode.getAutofillId(), "UNKNOWN"));
+                passedNodes.add(new viewNodeDataClass(viewNode, "UNKNOWN"));
             }
         }
         for (int i = 0; i < viewNode.getChildCount(); i++) {
@@ -121,12 +159,24 @@ public class AutofillServiceExtend extends AutofillService {
     }
 
     public boolean CompareStringBase(String source, String[] target) {
+        if (source == null) {
+            return false;
+        }
         for (int i = 0; i < target.length; i++) {
             if (source.toLowerCase().trim().contains(target[i].toLowerCase().trim())) {
                 return true;
             }
         }
         return false;
+    }
+
+    class viewNodeDataClass{
+        AssistStructure.ViewNode viewNode;
+        String autoFillHint;
+        public viewNodeDataClass(AssistStructure.ViewNode viewNode, String autoFillHint){
+            this.autoFillHint = autoFillHint;
+            this.viewNode = viewNode;
+        }
     }
 
 }

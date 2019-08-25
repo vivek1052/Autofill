@@ -16,7 +16,7 @@ import com.example.autofill.MainActivity;
 import com.example.autofill.R;
 import com.example.autofill.dataClass.CardDataClass;
 import com.example.autofill.databinding.FragmentDisplayCardBinding;
-import com.example.autofill.util.MasterPasswrordPrompt;
+import com.example.autofill.util.Authenticate;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -68,14 +68,10 @@ public class DisplayCardFragment extends Fragment implements View.OnClickListene
     @Override
     public void onClick(View view) {
         if (view.getId()==binding.cardDecrypt.getId()){
-           final MasterPasswrordPrompt prompt = new MasterPasswrordPrompt(mainActivity,R.string.decrypt);
-            prompt.setOnclickListener(new View.OnClickListener() {
+            Authenticate authenticate = new Authenticate(mainActivity,R.string.decrypt);
+            authenticate.setListener(new Authenticate.authCallBack() {
                 @Override
-                public void onClick(View view) {
-                    if (prompt.getMasterPassword()==null){
-                        return;
-                    }
-                    String mastPass = prompt.getMasterPassword().getText().toString();
+                public void onAuthenticationSuccess(String mastPass) {
                     try {
                         cardData.cardNo1=(mainActivity.cipherClass.decrypt((cardData.cardNo1),mastPass));
                         cardData.cardNo2=(mainActivity.cipherClass.decrypt((cardData.cardNo2),mastPass));
@@ -85,19 +81,14 @@ public class DisplayCardFragment extends Fragment implements View.OnClickListene
                         cardData.year=(mainActivity.cipherClass.decrypt((cardData.year),mastPass));
                         cardData.cvv=(mainActivity.cipherClass.decrypt((cardData.cvv),mastPass));
                         binding.setCardData(cardData);
-                        binding.cardDecrypt.setVisibility(View.GONE);
-                        prompt.getAlertDialog().dismiss();
-                    } catch (NoSuchAlgorithmException e) {
-                        e.printStackTrace();
-                    } catch (NoSuchPaddingException e) {
-                        e.printStackTrace();
-                    } catch (InvalidKeyException e) {
-                        e.printStackTrace();
-                    } catch (BadPaddingException e) {
-                        e.printStackTrace();
-                    } catch (IllegalBlockSizeException e) {
+                    } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
                         e.printStackTrace();
                     }
+                }
+
+                @Override
+                public void onAuthenticationFailed() {
+
                 }
             });
         }

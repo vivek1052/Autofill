@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.preference.PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title = "Autofill">
+        <androidx.preference.Preference
+            app:key="autoFillService"
+            app:title="AutoFill Service"
+            app:summary="Select Autofill as default autofill app in settings">
+        </androidx.preference.Preference>
+        <androidx.preference.Preference
+            app:key="accessibilityService"
+            app:title="Accessibility Service"
+            app:summary="Enable accessibility service in settings"/>
+    </PreferenceCategory>
+
+    <androidx.preference.SwitchPreferenceCompat
+        app:key="fingerPrintEnabled"
+        app:title="Enable fingerprint Reader"
+        app:summary="Fingerprint can be used to save Master password
+in Secure Android Key Store."/>
+
+</androidx.preference.PreferenceScreen>

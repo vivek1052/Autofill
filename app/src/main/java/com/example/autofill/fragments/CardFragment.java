@@ -1,7 +1,6 @@
 package com.example.autofill.fragments;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -18,14 +17,14 @@ import com.example.autofill.adapter.CardAdapter;
 import com.example.autofill.dataClass.AddressDataClass;
 import com.example.autofill.dataClass.CardDataClass;
 import com.example.autofill.dataClass.PasswordDataClass;
-import com.example.autofill.util.CustomEvents;
+import com.example.autofill.util.DataUpdateCallback;
 
 import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class CardFragment extends Fragment implements CustomEvents {
+public class CardFragment extends Fragment implements DataUpdateCallback {
     MainActivity mainActivity;
     CardAdapter adapter;
     @Override

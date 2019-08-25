@@ -6,7 +6,7 @@ import com.example.autofill.dataClass.PasswordDataClass;
 
 import java.util.List;
 
-public interface CustomEvents {
+public interface DataUpdateCallback {
     void passwordDataUpdated(List<PasswordDataClass> updatedData);
     void cardDetailUpdated(List<CardDataClass> updatedData);
     void AddressDataUpdated(List<AddressDataClass> updatedData);

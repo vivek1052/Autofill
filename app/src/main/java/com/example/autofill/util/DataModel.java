@@ -15,7 +15,7 @@ import java.util.List;
 
 public class DataModel {
 
-    public  List<CustomEvents> listeners = new ArrayList<CustomEvents>();
+    public  List<DataUpdateCallback> listeners = new ArrayList<DataUpdateCallback>();
     public  List<PasswordDataClass> passwordData = new ArrayList<PasswordDataClass>();
     public  List<CardDataClass> cardData = new ArrayList<CardDataClass>();
     public  List<AddressDataClass> addressData = new ArrayList<AddressDataClass>();
@@ -62,7 +62,7 @@ public class DataModel {
         }
     }
 
-    public void  addEventLister(CustomEvents listner){
+    public void  addEventLister(DataUpdateCallback listner){
        listeners.add(listner);
     }
 

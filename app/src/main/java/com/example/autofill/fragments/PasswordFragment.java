@@ -23,7 +23,7 @@ import com.example.autofill.adapter.PasswordAdapter;
 import com.example.autofill.dataClass.AddressDataClass;
 import com.example.autofill.dataClass.CardDataClass;
 import com.example.autofill.dataClass.PasswordDataClass;
-import com.example.autofill.util.CustomEvents;
+import com.example.autofill.util.DataUpdateCallback;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +32,7 @@ import java.util.List;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class PasswordFragment extends Fragment implements CustomEvents {
+public class PasswordFragment extends Fragment implements DataUpdateCallback {
     MainActivity mainActivity;
     PasswordAdapter adapter;
     List<PasswordDataClass> passwordData;
