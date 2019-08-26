@@ -98,11 +98,7 @@ public class SettingsFragment extends Fragment {
                 findPreference(AUTOFILL_SER).setSummary("Disabled");
             }
             SwitchPreferenceCompat googleSign = findPreference(GOOGLEACCOUNT);
-            if (GoogleSignIn.getLastSignedInAccount(mainActivity)!=null){
-                googleSign.setChecked(true);
-            }else {
-                googleSign.setChecked(false);
-            }
+
             findPreference(RETRIEVE_BACKUP).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {

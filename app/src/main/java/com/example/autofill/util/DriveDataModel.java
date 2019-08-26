@@ -39,22 +39,19 @@ public class DriveDataModel {
             @Override
             public void run() {
                 if (GoogleSignIn.getLastSignedInAccount(context) != null){
-                    OutputStream driveOutputStream = new ByteArrayOutputStream();
                     Drive service = DriveServiceBuilder();
                     List<File> files;
                     try {
                         FileList result = service.files().list()
-                               .setQ("mimeType = 'application/x-sqlite3' and name = '"+Contract.DATABASE_NAME+"'")
+                               .setQ("mimeType = 'application/x-sqlite3' and ( name = '"+Contract.DATABASE_NAME+"'"
+                               + " or name = '"+Contract.DATABASE_NAME_SHM+"'"+" or name = '"+Contract.DATABASE_NAME_WAL+"' )")
                                .setSpaces("appDataFolder")
                                .execute();
                         files = result.getFiles();
-                        String id = files.get(0).getId();
-                        service.files().get(id)
-                                .executeMediaAndDownloadTo(driveOutputStream);
-                        OutputStream outStream = new FileOutputStream(context.getDatabasePath(Contract.DATABASE_NAME));
-                        ((ByteArrayOutputStream) driveOutputStream).writeTo(outStream);
-                        outStream.flush();
-                        outStream.close();
+                        for (File f:files){
+                            service.files().get(f.getId())
+                                    .executeMediaAndDownloadTo(new FileOutputStream(context.getDatabasePath(f.getName())));
+                        }
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -80,13 +77,32 @@ public class DriveDataModel {
             public void run() {
                 if (GoogleSignIn.getLastSignedInAccount(context) != null){
                     Drive service = DriveServiceBuilder();
-                    File fileMetadata = new File();
-                    fileMetadata.setName(Contract.DATABASE_NAME);
-                    fileMetadata.setParents(Collections.singletonList("appDataFolder"));
-                    java.io.File path = new java.io.File(String.valueOf(context.getDatabasePath(Contract.DATABASE_NAME)));
-                    FileContent mediaContent = new FileContent("application/x-sqlite3", path);
+                    File DBMetadata = new File();
+                    DBMetadata.setName(Contract.DATABASE_NAME);
+                    DBMetadata.setParents(Collections.singletonList("appDataFolder"));
+
+                    File SHMMetadata = new File();
+                    SHMMetadata.setName(Contract.DATABASE_NAME_SHM);
+                    SHMMetadata.setParents(Collections.singletonList("appDataFolder"));
+
+                    File WALMetadata = new File();
+                    WALMetadata.setName(Contract.DATABASE_NAME_WAL);
+                    WALMetadata.setParents(Collections.singletonList("appDataFolder"));
+
+                    FileContent DBContent = new FileContent("application/x-sqlite3",
+                            new java.io.File(String.valueOf(context.getDatabasePath(Contract.DATABASE_NAME))));
+
+                    FileContent SHMContent = new FileContent("application/x-sqlite3",
+                            new java.io.File(String.valueOf(context.getDatabasePath(Contract.DATABASE_NAME_SHM))));
+
+                    FileContent WALContent = new FileContent("application/x-sqlite3",
+                            new java.io.File(String.valueOf(context.getDatabasePath(Contract.DATABASE_NAME_WAL))));
                     try {
-                        service.files().create(fileMetadata,mediaContent).setFields("id")
+                        service.files().create(DBMetadata,DBContent).setFields("id")
+                                .execute();
+                        service.files().create(SHMMetadata,SHMContent).setFields("id")
+                                .execute();
+                        service.files().create(WALMetadata,WALContent).setFields("id")
                                 .execute();
                     } catch (IOException e) {
                         e.printStackTrace();

@@ -4,6 +4,8 @@ import android.provider.BaseColumns;
 
 public final class Contract {
     static public final String DATABASE_NAME = "AUTOFILL.db";
+    static public final String DATABASE_NAME_SHM = "AUTOFILL.db-shm";
+    static public final String DATABASE_NAME_WAL = "AUTOFILL.db-wal";
 
     // To prevent someone from accidentally instantiating the contract class,
     // make the constructor private.
