@@ -92,8 +92,8 @@ public class OnSaveAutoFillActivity extends AppCompatActivity {
             newPassword.subText = packageName;
             newPassword.username = cipherClass.encrypt(usename,maspass);
             newPassword.password = cipherClass.encrypt(password,maspass);
-
             dataModel.addNewPassword(newPassword);
         }
+        finish();
     }
 }

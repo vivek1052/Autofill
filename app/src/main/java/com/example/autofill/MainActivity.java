@@ -1,5 +1,6 @@
 package com.example.autofill;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -9,6 +10,7 @@ import com.example.autofill.util.CipherClass;
 import com.example.autofill.util.DataModel;
 import com.google.android.material.navigation.NavigationView;
 
+import androidx.annotation.Nullable;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
@@ -32,6 +34,8 @@ public class MainActivity extends AppCompatActivity {
     public NavController navController;
     public DataModel dataModel;
     public CipherClass cipherClass;
+    private onCallbacks callbackListener;
+    private static final int RC_SIGN_IN = 1;
 
     private AppBarConfiguration appBarConfiguration;
     @Override
@@ -66,6 +70,17 @@ public class MainActivity extends AppCompatActivity {
         return NavigationUI.navigateUp(navController,appBarConfiguration);
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode==RC_SIGN_IN){
+            callbackListener.onGoogleSignIn(resultCode,data);
+        }
+    }
+
+    public void setCallbackListener(onCallbacks listener){
+        this.callbackListener = listener;
+    }
 
     @Override
     public void onBackPressed() {
@@ -75,5 +90,9 @@ public class MainActivity extends AppCompatActivity {
         else{
             super.onBackPressed();
         }
+    }
+
+    public interface onCallbacks{
+        void onGoogleSignIn(int resultCode, Intent data);
     }
 }

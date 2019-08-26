@@ -14,9 +14,19 @@
     </PreferenceCategory>
 
     <androidx.preference.SwitchPreferenceCompat
-        app:key="fingerPrintEnabled"
-        app:title="Enable fingerprint Reader"
-        app:summary="Fingerprint can be used to save Master password
+    app:key="fingerPrintEnabled"
+    app:title="Enable fingerprint Reader"
+    app:summary="Fingerprint can be used to save Master password
 in Secure Android Key Store."/>
+
+    <androidx.preference.SwitchPreferenceCompat
+        app:key="googleAccountLinked"
+        app:title="Sync with Google Drive"
+        app:summary="Login to your Drive to enable daily backups"/>
+    <androidx.preference.Preference
+        app:key="RetriveFromDrive"
+        app:title="Retrieve Saved Data from Drive"
+        app:summary="Restore the last Google Drive Backup">
+    </androidx.preference.Preference>
 
 </androidx.preference.PreferenceScreen>

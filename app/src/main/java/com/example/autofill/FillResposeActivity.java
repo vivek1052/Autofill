@@ -36,6 +36,7 @@ public class FillResposeActivity extends AppCompatActivity {
     CipherClass cipherClass;
     FillResponse.Builder fillResponseBuilder;
     String packageName;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,8 +62,8 @@ public class FillResposeActivity extends AppCompatActivity {
             }
         }
 
-        if (passwordNode!=null || usernameNode!=null || phoneNode!=null){
-            Authenticate authenticate = new Authenticate(this,R.string.decrypt);
+        if (passwordNode != null || usernameNode != null || phoneNode != null) {
+            Authenticate authenticate = new Authenticate(this, R.string.decrypt);
             authenticate.setListener(new Authenticate.authCallBack() {
                 @Override
                 public void onAuthenticationSuccess(String maspass) {
@@ -79,11 +80,13 @@ public class FillResposeActivity extends AppCompatActivity {
                     finish();
                 }
             });
-        }else {finish();}
+        } else {
+            finish();
+        }
     }
 
     private void fillResponse(String maspass) throws InvalidKeyException, BadPaddingException, NoSuchAlgorithmException, IllegalBlockSizeException, NoSuchPaddingException {
-        if (usernameNode!=null || passwordNode!=null){
+        if (usernameNode != null || passwordNode != null) {
             fillResponsePassword(maspass);
         }
     }
@@ -92,56 +95,62 @@ public class FillResposeActivity extends AppCompatActivity {
 
         List<PasswordDataClass> passwordData = new ArrayList<>(dataModel.dbHelper.getAllPassword());
         List<PasswordDataClass> validPassword = new ArrayList<>();
-        for (PasswordDataClass pd:passwordData){
-            if (pd.subText.equals(packageName)){
+        for (PasswordDataClass pd : passwordData) {
+            if (pd.subText.equals(packageName)) {
                 validPassword.add(pd);
             }
         }
 
-        if (usernameNode!=null && passwordNode!=null){
-            if (validPassword.size()>0){
-                for (PasswordDataClass pd:validPassword){
+        if (usernameNode != null && passwordNode != null) {
+            if (validPassword.size() > 0) {
+                for (PasswordDataClass pd : validPassword) {
+                    pd.username = cipherClass.decrypt(pd.username, maspass);
+                    pd.password = cipherClass.decrypt(pd.password, maspass);
                     fillResponseBuilder.addDataset(new Dataset.Builder()
                             .setValue(usernameNode,
-                                    AutofillValue.forText(cipherClass.decrypt(pd.username,maspass)),CreatePresentation(pd.serviceName))
+                                    AutofillValue.forText(pd.username), CreatePresentation(pd.serviceName, pd.username))
                             .setValue(passwordNode,
-                                    AutofillValue.forText(cipherClass.decrypt(pd.password,maspass)), CreatePresentation(pd.serviceName))
+                                    AutofillValue.forText(pd.password), CreatePresentation(pd.serviceName, pd.username))
                             .build());
                 }
                 setFinalResult();
-            }else {
+            } else {
                 fillResponseBuilder.setSaveInfo(new SaveInfo.Builder(
                         SaveInfo.SAVE_DATA_TYPE_USERNAME | SaveInfo.SAVE_DATA_TYPE_PASSWORD,
-                        new AutofillId[] {usernameNode, passwordNode}).build());
+                        new AutofillId[]{usernameNode, passwordNode}).build());
                 setFinalResult();
             }
-        }else if (passwordNode!=null){
-            if (validPassword.size()>0){
-                for (PasswordDataClass pd:validPassword){
+        } else if (passwordNode != null) {
+            if (validPassword.size() > 0) {
+                for (PasswordDataClass pd : validPassword) {
+                    pd.username = cipherClass.decrypt(pd.username, maspass);
+                    pd.password = cipherClass.decrypt(pd.password, maspass);
                     fillResponseBuilder.addDataset(new Dataset.Builder()
                             .setValue(passwordNode,
-                                    AutofillValue.forText(cipherClass.decrypt(pd.password,maspass)), CreatePresentation(pd.serviceName))
+                                    AutofillValue.forText(pd.password), CreatePresentation(pd.serviceName, pd.username))
                             .build());
                 }
                 setFinalResult();
-            }else {
-                fillResponseBuilder.setSaveInfo(new SaveInfo.Builder( SaveInfo.SAVE_DATA_TYPE_PASSWORD,
-                        new AutofillId[] {passwordNode}).build());
+            } else {
+                fillResponseBuilder.setSaveInfo(new SaveInfo.Builder(SaveInfo.SAVE_DATA_TYPE_PASSWORD,
+                        new AutofillId[]{passwordNode}).build());
                 setFinalResult();
             }
-        }else if (usernameNode!=null){
-            if (validPassword.size()>0){
-                for (PasswordDataClass pd:validPassword){
+        } else if (usernameNode != null) {
+            if (validPassword.size() > 0) {
+                for (PasswordDataClass pd : validPassword) {
+                    pd.username = cipherClass.decrypt(pd.username, maspass);
+                    pd.password = cipherClass.decrypt(pd.password, maspass);
                     fillResponseBuilder.addDataset(new Dataset.Builder()
                             .setValue(usernameNode,
-                                    AutofillValue.forText(cipherClass.decrypt(pd.username,maspass)),CreatePresentation(pd.serviceName))
+                                    AutofillValue.forText(pd.username), CreatePresentation(pd.serviceName, pd.username))
                             .build());
                 }
                 setFinalResult();
-            }else {
+            } else {
                 fillResponseBuilder.setSaveInfo(new SaveInfo.Builder(
                         SaveInfo.SAVE_DATA_TYPE_USERNAME,
-                        new AutofillId[] {usernameNode}).build());
+                        new AutofillId[]{usernameNode}).build());
                 setFinalResult();
             }
         }
@@ -156,9 +165,10 @@ public class FillResposeActivity extends AppCompatActivity {
     }
 
 
-    public RemoteViews CreatePresentation(String displayText) {
-        RemoteViews presentation = new RemoteViews(getPackageName(), android.R.layout.simple_list_item_1);
-        presentation.setTextViewText(android.R.id.text1, displayText);
+    public RemoteViews CreatePresentation(String displayText, String subText) {
+        RemoteViews presentation = new RemoteViews(getPackageName(), R.layout.simple_list_2_item);
+        presentation.setTextViewText(R.id.text1, displayText);
+        presentation.setTextViewText(R.id.text2, subText);
         return presentation;
     }
 

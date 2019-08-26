@@ -1,15 +1,20 @@
 package com.example.autofill.fragments;
 
-
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 import androidx.preference.SwitchPreferenceCompat;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,7 +26,15 @@ import com.example.autofill.dataClass.MasterPasswordEncrypted;
 import com.example.autofill.util.BiometricHelper;
 import com.example.autofill.util.CacheFileHelper;
 import com.example.autofill.util.CipherClass;
+import com.example.autofill.util.Contract;
+import com.example.autofill.util.DriveDataModel;
+import com.example.autofill.util.JobSchedulerService;
 import com.example.autofill.util.MasterPasswrordPrompt;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.api.Scope;
+import com.google.api.services.drive.DriveScopes;
 
 import java.io.IOException;
 import java.security.InvalidAlgorithmParameterException;
@@ -43,6 +56,13 @@ public class SettingsFragment extends Fragment {
     private static final String FINGERPRINT = "fingerPrintEnabled";
     private static final String AUTOFILL_SER = "autoFillService";
     private static final String ACCESSIBILITY_SER = "accessibilityService";
+    private static final String GOOGLEACCOUNT = "googleAccountLinked";
+    private static final String RETRIEVE_BACKUP = "RetriveFromDrive";
+
+    private static final int RC_SIGN_IN = 1;
+    private static final int JOB_ID = 305;
+    private static final int JOB_INTERVAL_HRS = 12;
+
 
     public SettingsFragment() {
         // Required empty public constructor
@@ -77,6 +97,38 @@ public class SettingsFragment extends Fragment {
             } else {
                 findPreference(AUTOFILL_SER).setSummary("Disabled");
             }
+            SwitchPreferenceCompat googleSign = findPreference(GOOGLEACCOUNT);
+            if (GoogleSignIn.getLastSignedInAccount(mainActivity)!=null){
+                googleSign.setChecked(true);
+            }else {
+                googleSign.setChecked(false);
+            }
+            findPreference(RETRIEVE_BACKUP).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    retrieveFromDrive();
+                    return true;
+                }
+            });
+        }
+
+        private void retrieveFromDrive() {
+            Scope scope = new Scope(DriveScopes.DRIVE_APPDATA);
+            GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                    .requestEmail()
+                    .requestScopes(scope)
+                    .build();
+            final GoogleSignInClient mGoogleSignInClient = GoogleSignIn.getClient(mainActivity, gso);
+            Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+            mainActivity.startActivityForResult(signInIntent, RC_SIGN_IN);
+            mainActivity.setCallbackListener(new MainActivity.onCallbacks() {
+                @Override
+                public void onGoogleSignIn(int resultCode, Intent data) {
+                    DriveDataModel driveDataModel = new DriveDataModel(mainActivity);
+                    driveDataModel.download(Contract.DATABASE_NAME);
+                }
+            });
+
         }
 
         @Override
@@ -96,23 +148,66 @@ public class SettingsFragment extends Fragment {
 
     public static class PreferenceChangeListener implements SharedPreferences.OnSharedPreferenceChangeListener {
         private PreferenceFragmentCompat prefFragContext;
-
+        CacheFileHelper cFile;
         public PreferenceChangeListener(PreferenceFragmentCompat context) {
             this.prefFragContext = context;
         }
 
         @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
+            cFile = new CacheFileHelper(mainActivity);
             if (s.equals(FINGERPRINT)) {
                 SwitchPreferenceCompat fingerprintPref = prefFragContext.findPreference(s);
                 if (fingerprintPref.isChecked()) {
                     setupFingerPrint(fingerprintPref);
+                }else {
+                    MasterPasswordEncrypted mpe = new MasterPasswordEncrypted(new byte[]{},new byte[]{});
+                    try {
+                        cFile.createCachedPassword(mpe);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
+            }else if (s.equals(GOOGLEACCOUNT)){
+                Scope scope = new Scope(DriveScopes.DRIVE_APPDATA);
+                SwitchPreferenceCompat googleAccPref = prefFragContext.findPreference(s);
+                GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                        .requestEmail()
+                        .requestScopes(scope)
+                        .build();
+                GoogleSignInClient mGoogleSignInClient = GoogleSignIn.getClient(mainActivity, gso);
+                if (googleAccPref.isChecked()){
+                    signInToGoogle(mGoogleSignInClient);
+                }else {
+                    mGoogleSignInClient.signOut();
+                    JobScheduler scheduler =
+                            (JobScheduler) mainActivity.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+                    scheduler.cancel(JOB_ID);
+                }
+            }else if (s.equals(RETRIEVE_BACKUP)){
+
             }
         }
 
+        private void signInToGoogle(GoogleSignInClient mGoogleSignInClient) {
+            Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+            mainActivity.startActivityForResult(signInIntent, RC_SIGN_IN);
+            mainActivity.setCallbackListener(new MainActivity.onCallbacks() {
+                @Override
+                public void onGoogleSignIn(int resultCode, Intent data) {
+                    ComponentName componentName = new ComponentName(mainActivity, JobSchedulerService.class);
+                    JobInfo jobInfo = new JobInfo.Builder(JOB_ID,componentName)
+                            .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+                            .setPersisted(true)
+                            .setPeriodic(JOB_INTERVAL_HRS*60*60*1000).build();
+                    JobScheduler scheduler =
+                            (JobScheduler) mainActivity.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+                    scheduler.schedule(jobInfo);
+                }
+            });
+        }
+
         private void setupFingerPrint(final SwitchPreferenceCompat fpPref) {
-            final CacheFileHelper cFile = new CacheFileHelper(mainActivity);
             final CipherClass cc = new CipherClass();
             final MasterPasswrordPrompt mp = new MasterPasswrordPrompt(mainActivity, R.string.linkWithFP);
             mp.setOnclickListener(new View.OnClickListener() {

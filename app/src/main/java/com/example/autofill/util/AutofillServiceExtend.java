@@ -72,6 +72,9 @@ public class AutofillServiceExtend extends AutofillService {
         List<FillContext> context = saveRequest.getFillContexts();
         AssistStructure structure = context.get(context.size() - 1).getStructure();
         List<viewNodeDataClass> passedNodes = traverseStructure(structure);
+        if (passedNodes.size()==0){
+            return;
+        }
         String packageName = structure.getActivityComponent().getPackageName();
         ArrayList<ParsedStructure> parsedPassedNodes = new ArrayList<>();
         for (int i = 0; i < passedNodes.size(); i++) {
