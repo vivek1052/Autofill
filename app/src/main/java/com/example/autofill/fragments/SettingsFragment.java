@@ -9,6 +9,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.fragment.app.Fragment;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
@@ -34,6 +35,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.Scope;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.api.services.drive.DriveScopes;
 
 import java.io.IOException;
@@ -120,8 +122,12 @@ public class SettingsFragment extends Fragment {
             mainActivity.setCallbackListener(new MainActivity.onCallbacks() {
                 @Override
                 public void onGoogleSignIn(int resultCode, Intent data) {
-                    DriveDataModel driveDataModel = new DriveDataModel(mainActivity);
-                    driveDataModel.download(Contract.DATABASE_NAME);
+                    if (resultCode==mainActivity.RESULT_OK){
+                        DriveDataModel driveDataModel = new DriveDataModel(mainActivity);
+                        driveDataModel.download(Contract.DATABASE_NAME);
+                    }else {
+                        Snackbar.make(new CoordinatorLayout(mainActivity),"Authentication Failed",Snackbar.LENGTH_LONG).show();
+                    }
                 }
             });
 

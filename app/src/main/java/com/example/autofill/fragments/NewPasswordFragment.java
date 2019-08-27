@@ -24,6 +24,7 @@ import com.example.autofill.util.MasterPasswrordPrompt;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.crypto.BadPaddingException;
@@ -42,8 +43,8 @@ public class NewPasswordFragment extends Fragment implements View.OnClickListene
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        installedApps = mainActivity.dataModel.installedApps;
+        // Inflate the layout for this fragmente
+        installedApps = new ArrayList<>(mainActivity.dataModel.installedApps);
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_new_password, container, false);
         View view = binding.getRoot();
         binding.service.setAdapter(new ServiceSuggestAdapter(mainActivity, installedApps));

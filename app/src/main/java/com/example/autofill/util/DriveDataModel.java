@@ -3,7 +3,10 @@ package com.example.autofill.util;
 
 import android.content.Context;
 
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.http.FileContent;
@@ -51,6 +54,9 @@ public class DriveDataModel {
                         for (File f:files){
                             service.files().get(f.getId())
                                     .executeMediaAndDownloadTo(new FileOutputStream(context.getDatabasePath(f.getName())));
+                        }
+                        if(files.size()>0){
+                            Snackbar.make(new CoordinatorLayout(context),"Files Downloaded",Snackbar.LENGTH_LONG).show();
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
