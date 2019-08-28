@@ -5,13 +5,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Handler;
 
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
-
 import com.example.autofill.MainActivity;
 import com.example.autofill.R;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.snackbar.Snackbar;
+
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.http.FileContent;
@@ -21,9 +19,7 @@ import com.google.api.client.util.DateTime;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 import com.google.api.services.drive.model.File;
-import com.google.api.services.drive.model.FileList;
 
-import java.io.DataInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -31,7 +27,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.LogRecord;
+
 
 
 public class DriveDataModel {
@@ -60,7 +56,7 @@ public class DriveDataModel {
                                 .setFields("files(createdTime,id,name)")
                                 .execute().getFiles();
 
-                        final CharSequence[] recovery = new CharSequence[versions];
+                        final CharSequence[] recovery = new CharSequence[files.size()];
                         for (int i = 0; i < files.size(); i++) {
                             recovery[i] = files.get(i).getCreatedTime().toString();
                         }
