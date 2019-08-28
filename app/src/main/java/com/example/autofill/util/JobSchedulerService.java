@@ -11,11 +11,11 @@ public class JobSchedulerService extends JobService {
     @Override
     public boolean onStartJob(final JobParameters jobParameters) {
         Log.d(TAG, "onStartJob: Job Started successfully");
+        final DriveDataModel driveDataModel = new DriveDataModel(getBaseContext());
         new Thread(new Runnable() {
             @Override
             public void run() {
-                DriveDataModel driveDataModel = new DriveDataModel(getBaseContext());
-                driveDataModel.upload(Contract.DATABASE_NAME);
+                driveDataModel.upload();
                 Log.d(TAG,"File Uploaded");
                 jobFinished(jobParameters,false);
             }

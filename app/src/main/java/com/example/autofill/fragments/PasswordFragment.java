@@ -74,7 +74,7 @@ public class PasswordFragment extends Fragment implements DataUpdateCallback {
 
     @Override
     public void passwordDataUpdated(final List<PasswordDataClass> updatedData) {
-        getActivity().runOnUiThread(new Runnable() {
+        mainActivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 adapter.clear();

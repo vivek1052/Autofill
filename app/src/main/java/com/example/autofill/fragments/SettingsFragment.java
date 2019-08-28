@@ -124,7 +124,7 @@ public class SettingsFragment extends Fragment {
                 public void onGoogleSignIn(int resultCode, Intent data) {
                     if (resultCode==mainActivity.RESULT_OK){
                         DriveDataModel driveDataModel = new DriveDataModel(mainActivity);
-                        driveDataModel.download(Contract.DATABASE_NAME);
+                        driveDataModel.selectVersion();
                     }else {
                         Snackbar.make(new CoordinatorLayout(mainActivity),"Authentication Failed",Snackbar.LENGTH_LONG).show();
                     }

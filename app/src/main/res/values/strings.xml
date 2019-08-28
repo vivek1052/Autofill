@@ -27,4 +27,6 @@
     <string name="user_name">User Name</string>
     <string name="settings">Settings</string>
     <string name="linkWithFP">Link With Finger Print</string>
+    <string name="version">Choose Version to Restore</string>
+    <string name="close">Close</string>
 </resources>
