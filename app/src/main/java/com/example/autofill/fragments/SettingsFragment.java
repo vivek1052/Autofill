@@ -9,7 +9,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.fragment.app.Fragment;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
@@ -27,7 +26,6 @@ import com.example.autofill.dataClass.MasterPasswordEncrypted;
 import com.example.autofill.util.BiometricHelper;
 import com.example.autofill.util.CacheFileHelper;
 import com.example.autofill.util.CipherClass;
-import com.example.autofill.util.Contract;
 import com.example.autofill.util.DriveDataModel;
 import com.example.autofill.util.JobSchedulerService;
 import com.example.autofill.util.MasterPasswrordPrompt;
@@ -63,7 +61,7 @@ public class SettingsFragment extends Fragment {
 
     private static final int RC_SIGN_IN = 1;
     private static final int JOB_ID = 305;
-    private static final int JOB_INTERVAL_HRS = 12;
+    private static final int JOB_INTERVAL_HRS = 1;
 
 
     public SettingsFragment() {
@@ -126,7 +124,7 @@ public class SettingsFragment extends Fragment {
                         DriveDataModel driveDataModel = new DriveDataModel(mainActivity);
                         driveDataModel.selectVersion();
                     }else {
-                        Snackbar.make(new CoordinatorLayout(mainActivity),"Authentication Failed",Snackbar.LENGTH_LONG).show();
+                        Snackbar.make(mainActivity.findViewById(android.R.id.content),"Authentication Failed",Snackbar.LENGTH_LONG).show();
                     }
                 }
             });
@@ -166,6 +164,7 @@ public class SettingsFragment extends Fragment {
                     MasterPasswordEncrypted mpe = new MasterPasswordEncrypted(new byte[]{},new byte[]{});
                     try {
                         cFile.createCachedPassword(mpe);
+                        Snackbar.make(mainActivity.findViewById(android.R.id.content),"Encrypted Master password Deleted",Snackbar.LENGTH_LONG).show();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -185,9 +184,8 @@ public class SettingsFragment extends Fragment {
                     JobScheduler scheduler =
                             (JobScheduler) mainActivity.getSystemService(Context.JOB_SCHEDULER_SERVICE);
                     scheduler.cancel(JOB_ID);
+                    Snackbar.make(mainActivity.findViewById(android.R.id.content),"Auto Backup Stopped",Snackbar.LENGTH_LONG).show();
                 }
-            }else if (s.equals(RETRIEVE_BACKUP)){
-
             }
         }
 
@@ -228,11 +226,14 @@ public class SettingsFragment extends Fragment {
                             @Override
                             public void onBioMetricSuccess(String masterPassword) {
                                 fpPref.setChecked(true);
+                                Snackbar.make(mainActivity.findViewById(android.R.id.content),"Linking Successful",Snackbar.LENGTH_LONG).show();
                             }
 
                             @Override
                             public void onBioMetricFailed() {
                                 fpPref.setChecked(false);
+                                Snackbar.make(mainActivity.findViewById(android.R.id.content),"Linking Failed",Snackbar.LENGTH_LONG).show();
+
                             }
                         });
                     } catch (NoSuchProviderException | NoSuchAlgorithmException | InvalidAlgorithmParameterException | KeyStoreException | CertificateException | IOException | BadPaddingException | IllegalBlockSizeException | NoSuchPaddingException | InvalidKeyException e) {

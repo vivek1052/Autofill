@@ -32,7 +32,7 @@ public class OnSaveAutoFillActivity extends AppCompatActivity {
     CipherClass cipherClass;
     String packageName;
     String appName;
-    String password, phoneNo, usename;
+    String password, phoneNo, usename, emailAddress;
     PasswordDataClass newPassword = new PasswordDataClass(0,"","","","");
 
     @Override
@@ -61,10 +61,13 @@ public class OnSaveAutoFillActivity extends AppCompatActivity {
                     break;
                 case View.AUTOFILL_HINT_PHONE:
                     phoneNo = ps.text;
+                case View.AUTOFILL_HINT_EMAIL_ADDRESS:
+                    emailAddress = ps.text;
             }
         }
 
-        if (!TextUtils.isEmpty(usename) || !TextUtils.isEmpty(password) || !TextUtils.isEmpty(phoneNo)){
+        if (!TextUtils.isEmpty(usename) || !TextUtils.isEmpty(password) || !TextUtils.isEmpty(phoneNo)
+           || !TextUtils.isEmpty(emailAddress)){
             Authenticate authenticate = new Authenticate(this,R.string.encrypt);
             authenticate.setListener(new Authenticate.authCallBack() {
                 @Override
@@ -88,6 +91,11 @@ public class OnSaveAutoFillActivity extends AppCompatActivity {
 
     private void saveData(String maspass) throws IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchAlgorithmException, NoSuchPaddingException {
         if (!TextUtils.isEmpty(usename) || !TextUtils.isEmpty(password)){
+            if (TextUtils.isEmpty(usename) && !TextUtils.isEmpty(emailAddress)){
+                usename = emailAddress;
+            }else if (TextUtils.isEmpty(usename) && !TextUtils.isEmpty(phoneNo)){
+                usename = phoneNo;
+            }
             newPassword.serviceName = appName;
             newPassword.subText = packageName;
             newPassword.username = cipherClass.encrypt(usename,maspass);

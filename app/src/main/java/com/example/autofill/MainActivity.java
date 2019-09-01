@@ -1,6 +1,9 @@
 package com.example.autofill;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -9,6 +12,7 @@ import android.view.autofill.AutofillManager;
 import com.example.autofill.util.CipherClass;
 import com.example.autofill.util.DataModel;
 import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.api.client.util.DateTime;
 
 import androidx.annotation.Nullable;
@@ -30,6 +34,7 @@ import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String CHANNEL_ID = "AUTOFILL_CHANNEL_ID";
     public Toolbar toolbar;
     public DrawerLayout drawer;
     public NavigationView navigationView;
@@ -65,6 +70,23 @@ public class MainActivity extends AppCompatActivity {
 
         NavigationUI.setupActionBarWithNavController(this,navController,appBarConfiguration);
         NavigationUI.setupWithNavController(navigationView,navController);
+        createNotificationChannel();
+    }
+
+    private void createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = getString(R.string.channel_name);
+            String description = getString(R.string.channel_description);
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
     }
 
     @Override

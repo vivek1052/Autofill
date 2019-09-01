@@ -1,15 +1,21 @@
 package com.example.autofill.util;
 
 
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Handler;
+
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
 import com.example.autofill.MainActivity;
 import com.example.autofill.R;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.http.FileContent;
@@ -33,11 +39,14 @@ import java.util.List;
 public class DriveDataModel {
     private Context context;
     private static final String APPLICATION_NAME = "Autofill";
+    private static final String CHANNEL_ID = "AUTOFILL_CHANNEL_ID";
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
     private static final int versions = 5;
+    private NotificationManagerCompat notificationManager;
 
     public DriveDataModel(Context context) {
         this.context = context;
+        notificationManager = NotificationManagerCompat.from(context);
     }
 
     private Handler handler=new Handler();
@@ -109,6 +118,7 @@ public class DriveDataModel {
                         mainActivity.dataModel.retrieveAllData();
                         mainActivity.dataModel.triggerPasswordDataUpdated();
                         mainActivity.dataModel.triggerCardDataUpdated();
+                        Snackbar.make(mainActivity.findViewById(android.R.id.content),"Version Downloaded and Applied",Snackbar.LENGTH_LONG).show();
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -184,6 +194,11 @@ public class DriveDataModel {
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
+                        NotificationCompat.Builder builder = new NotificationCompat.Builder(context,CHANNEL_ID)
+                                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                                .setContentTitle("Autofill")
+                                .setContentText("New version of backup created in Drive");
+                        notificationManager.notify(100,builder.build());
                     } else {
                         DateTime oldest = new DateTime(new Date());
                         for (int i = 0; i < files.size(); i++) {
@@ -214,6 +229,13 @@ public class DriveDataModel {
                                             .execute();
                                     service.files().delete(f.getId()).execute();
                                 }
+                            }
+                            if (files.size()>0){
+                                NotificationCompat.Builder builder = new NotificationCompat.Builder(context,CHANNEL_ID)
+                                        .setSmallIcon(R.drawable.ic_launcher_foreground)
+                                        .setContentTitle("Autofill")
+                                        .setContentText("New backup created by overwriting "+oldest.toString());
+                                notificationManager.notify(101,builder.build());
                             }
                         } catch (IOException e) {
                             e.printStackTrace();

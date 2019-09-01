@@ -37,10 +37,9 @@
             <intent-filter>
                 <action android:name="android.service.autofill.AutofillService" />
             </intent-filter>
-
             <meta-data
                 android:name="android.autofill"
-                android:resource="@xml/service_configuration" />
+                android:resource="@xml/service_autofill" />
         </service>
         <service android:name=".util.JobSchedulerService"
             android:label="Autofill"
