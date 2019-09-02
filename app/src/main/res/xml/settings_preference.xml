@@ -1,24 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.preference.PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
-    <PreferenceCategory android:title = "Autofill">
+    <PreferenceCategory android:title = "Autofill System Settings">
         <androidx.preference.Preference
             app:key="autoFillService"
             app:title="AutoFill Service"
             app:summary="Select Autofill as default autofill app in settings">
         </androidx.preference.Preference>
-        <androidx.preference.Preference
-            app:key="accessibilityService"
-            app:title="Accessibility Service"
-            app:summary="Enable accessibility service in settings"/>
+        <androidx.preference.SwitchPreferenceCompat
+            app:key="fingerPrintEnabled"
+            app:title="Enable fingerprint Reader"
+            app:summary="Fingerprint can be used to save Master password
+in Secure Android Key Store."/>
     </PreferenceCategory>
 
-    <androidx.preference.SwitchPreferenceCompat
-    app:key="fingerPrintEnabled"
-    app:title="Enable fingerprint Reader"
-    app:summary="Fingerprint can be used to save Master password
-in Secure Android Key Store."/>
-
+    <PreferenceCategory android:title = "Google">
     <androidx.preference.SwitchPreferenceCompat
         app:key="googleAccountLinked"
         app:title="Sync with Google Drive"
@@ -28,5 +24,12 @@ in Secure Android Key Store."/>
         app:title="Retrieve Saved Data from Drive"
         app:summary="Restore the last Google Drive Backup">
     </androidx.preference.Preference>
+    </PreferenceCategory>
+
+    <androidx.preference.ListPreference
+        app:key="darkMode"
+        app:title="Apply DarkMode"
+        app:entries="@array/dark_mode_alias"
+        app:entryValues="@array/dark_mode"/>
 
 </androidx.preference.PreferenceScreen>

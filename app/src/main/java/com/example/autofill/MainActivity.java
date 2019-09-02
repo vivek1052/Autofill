@@ -3,6 +3,7 @@ package com.example.autofill;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
@@ -16,6 +17,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.api.client.util.DateTime;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
@@ -25,6 +27,8 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
+import androidx.preference.ListPreference;
+import androidx.preference.PreferenceManager;
 
 
 import java.io.IOException;
@@ -43,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
     public CipherClass cipherClass;
     private onCallbacks callbackListener;
     private static final int RC_SIGN_IN = 1;
+    private static final String DARK_MODE = "darkMode";
 
     private AppBarConfiguration appBarConfiguration;
     @Override
@@ -71,6 +76,8 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupActionBarWithNavController(this,navController,appBarConfiguration);
         NavigationUI.setupWithNavController(navigationView,navController);
         createNotificationChannel();
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        AppCompatDelegate.setDefaultNightMode(Integer.valueOf(preferences.getString(DARK_MODE,"")));
     }
 
     private void createNotificationChannel() {

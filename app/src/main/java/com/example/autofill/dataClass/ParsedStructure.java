@@ -2,19 +2,28 @@ package com.example.autofill.dataClass;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
 import android.view.autofill.AutofillId;
+
+import java.util.ArrayList;
 
 public class ParsedStructure implements Parcelable {
     public AutofillId nodeId;
     public String autofillhint;
     public String text;
     public String url;
+    public ArrayList<String> autoFillOptions = new ArrayList<>();
 
-    public ParsedStructure(AutofillId nodeId, String autofillhint, String text,String url){
+    public ParsedStructure(AutofillId nodeId, String autofillhint, String text,String url, CharSequence[] options){
         this.nodeId = nodeId;
         this.autofillhint = autofillhint;
         this.text = text;
         this.url = url;
+        if (options!=null){
+            for (CharSequence op:options){
+                this.autoFillOptions.add(op.toString());
+            }
+        }
     }
 
     protected ParsedStructure(Parcel in) {
@@ -22,6 +31,7 @@ public class ParsedStructure implements Parcelable {
         autofillhint = in.readString();
         text = in.readString();
         url = in.readString();
+        autoFillOptions = in.readArrayList(null);
     }
 
 
@@ -31,6 +41,7 @@ public class ParsedStructure implements Parcelable {
         dest.writeString(autofillhint);
         dest.writeString(text);
         dest.writeString(url);
+        dest.writeList(autoFillOptions);
     }
 
     @Override
@@ -80,5 +91,13 @@ public class ParsedStructure implements Parcelable {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public ArrayList<String> getAutoFillOptions() {
+        return autoFillOptions;
+    }
+
+    public void setAutoFillOptions(ArrayList autoFillOptions) {
+        this.autoFillOptions = autoFillOptions;
     }
 }

@@ -1,7 +1,5 @@
 package com.example.autofill;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.service.autofill.Dataset;
@@ -11,6 +9,8 @@ import android.view.View;
 import android.view.autofill.AutofillId;
 import android.view.autofill.AutofillValue;
 import android.widget.RemoteViews;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.autofill.dataClass.CardDataClass;
 import com.example.autofill.dataClass.ParsedStructure;
@@ -25,6 +25,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -38,10 +39,12 @@ import static android.view.autofill.AutofillManager.EXTRA_AUTHENTICATION_RESULT;
 public class FillResposeActivity extends AppCompatActivity {
 
     AutofillId usernameNode, passwordNode, phoneNode, emailNode, cardNoNode, expiryMonthNode, expiryYearNode, nameNode, cvvNode;
+    int expiryMonthIndex, expiryYearIndex;
     DataModel dataModel;
     CipherClass cipherClass;
     FillResponse.Builder fillResponseBuilder;
     String packageName;
+    ArrayList<ParsedStructure> passedNodes;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,8 +56,9 @@ public class FillResposeActivity extends AppCompatActivity {
         fillResponseBuilder = new FillResponse.Builder();
         Bundle bundle = intent.getBundleExtra("Data");
         packageName = bundle.getString("packageName");
-        ArrayList<ParsedStructure> passedNodes = bundle.getParcelableArrayList("passedNodes");
-        if (CompareStringBase(packageName, GenericStringBase.browser)){
+
+        passedNodes = bundle.getParcelableArrayList("passedNodes");
+        if (CompareStringBase(packageName, GenericStringBase.browser)) {
             try {
                 URI uri = new URI(passedNodes.get(0).url);
                 packageName = InternetDomainName.from(uri.getHost()).topPrivateDomain()
@@ -64,7 +68,8 @@ public class FillResposeActivity extends AppCompatActivity {
             }
         }
 
-        for (ParsedStructure ps : passedNodes) {
+        for (int i = 0; i < passedNodes.size(); i++) {
+            ParsedStructure ps = passedNodes.get(i);
             switch (ps.autofillhint) {
                 case View.AUTOFILL_HINT_USERNAME:
                     usernameNode = ps.nodeId;
@@ -83,9 +88,11 @@ public class FillResposeActivity extends AppCompatActivity {
                     break;
                 case View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_MONTH:
                     expiryMonthNode = ps.nodeId;
+                    expiryMonthIndex = i;
                     break;
                 case View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_YEAR:
                     expiryYearNode = ps.nodeId;
+                    expiryYearIndex = i;
                     break;
                 case View.AUTOFILL_HINT_NAME:
                     nameNode = ps.nodeId;
@@ -96,106 +103,118 @@ public class FillResposeActivity extends AppCompatActivity {
             }
         }
 
-        if (passwordNode != null || usernameNode != null || phoneNode != null || emailNode != null
-        || cardNoNode != null || nameNode != null || cvvNode != null) {
+        if (usernameNode != null || passwordNode != null || emailNode != null || phoneNode != null) {
+            fillResponsePassword();
+        } else if (cardNoNode != null || nameNode != null || cvvNode != null) {
+            fillResponseCard();
+        } else {
+            finishAndRemoveTask();
+        }
+
+    }
+
+
+    private void fillResponseCard() {
+        final List<CardDataClass> cardData = new ArrayList<>(dataModel.dbHelper.getAllCards());
+
+        if (cardData.size() > 0) {
             Authenticate authenticate = new Authenticate(this, R.string.decrypt);
             authenticate.setListener(new Authenticate.authCallBack() {
                 @Override
                 public void onAuthenticationSuccess(String maspass) {
-                    try {
-                        fillResponse(maspass);
-                    } catch (IllegalBlockSizeException | InvalidKeyException | BadPaddingException | NoSuchAlgorithmException | NoSuchPaddingException e) {
-                        e.printStackTrace();
-                        finish();
+                    for (CardDataClass cD : cardData) {
+                        try {
+                            cD.cardNo1 = cipherClass.decrypt(cD.cardNo1, maspass);
+                            cD.cardNo2 = cipherClass.decrypt(cD.cardNo2, maspass);
+                            cD.cardNo3 = cipherClass.decrypt(cD.cardNo3, maspass);
+                            cD.cardNo4 = cipherClass.decrypt(cD.cardNo4, maspass);
+                            cD.month = cipherClass.decrypt(cD.month, maspass);
+                            cD.year = cipherClass.decrypt(cD.year, maspass);
+                            cD.cvv = cipherClass.decrypt(cD.cvv, maspass);
+                        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
+                            e.printStackTrace();
+                            finishAndRemoveTask();
+                        }
+
+                        Dataset.Builder dataSetBuilder = new Dataset.Builder();
+                        if (cardNoNode != null) {
+                            dataSetBuilder.setValue(cardNoNode,
+                                    AutofillValue.forText(cD.cardNo1 + cD.cardNo2 + cD.cardNo3 + cD.cardNo4),
+                                    CreatePresentation(cD.bankName, cD.cardType));
+                        }
+                        if (expiryMonthNode != null && expiryYearNode == null) {
+                            dataSetBuilder.setValue(expiryMonthNode,
+                                    AutofillValue.forText(cD.month + "/" + cD.year), CreatePresentation(cD.bankName, cD.cardType));
+                        } else if (expiryMonthNode == null && expiryYearNode != null) {
+                            dataSetBuilder.setValue(expiryYearNode,
+                                    AutofillValue.forText(cD.month + "/" + cD.year), CreatePresentation(cD.bankName, cD.cardType));
+                        } else {
+                            if (expiryMonthNode != null) {
+                                ArrayList<String> autoFillOptions = passedNodes.get(expiryMonthIndex).autoFillOptions;
+                                if (autoFillOptions != null && autoFillOptions.size() > 0) {
+                                    int ListIndex = 0;
+                                    for (String ao : autoFillOptions) {
+                                        if (ao.trim().contains(cD.month.trim()) || ao.toLowerCase().trim()
+                                                .contains(Month.of(Integer.valueOf(cD.month)).name().toLowerCase().trim())) {
+                                            ListIndex = autoFillOptions.indexOf(ao);
+                                        }
+                                    }
+                                    dataSetBuilder.setValue(expiryMonthNode,
+                                            AutofillValue.forList(ListIndex), CreatePresentation(cD.bankName, cD.cardType));
+                                } else {
+                                    dataSetBuilder.setValue(expiryMonthNode,
+                                            AutofillValue.forText(cD.month), CreatePresentation(cD.bankName, cD.cardType));
+                                }
+                            }
+                            if (expiryYearNode != null) {
+                                ArrayList<String> autoFillOptions = passedNodes.get(expiryYearIndex).autoFillOptions;
+                                int ListIndex = 0;
+                                if (autoFillOptions != null && autoFillOptions.size() > 0) {
+                                    for (String ao : autoFillOptions) {
+                                        if (ao.trim().contains(cD.year.trim())) {
+                                            ListIndex = autoFillOptions.indexOf(ao);
+                                        }
+                                    }
+                                    dataSetBuilder.setValue(expiryYearNode,
+                                            AutofillValue.forList(ListIndex), CreatePresentation(cD.bankName, cD.cardType));
+                                } else {
+                                    dataSetBuilder.setValue(expiryYearNode,
+                                            AutofillValue.forText(cD.year), CreatePresentation(cD.bankName, cD.cardType));
+                                }
+                            }
+                        }
+                        if (nameNode != null) {
+                            dataSetBuilder.setValue(nameNode,
+                                    AutofillValue.forText(cD.name), CreatePresentation(cD.bankName, cD.cardType));
+                        }
+                        if (cvvNode != null) {
+                            dataSetBuilder.setValue(cvvNode,
+                                    AutofillValue.forText(cD.cvv), CreatePresentation(cD.bankName, cD.cardType));
+                        }
+                        fillResponseBuilder.addDataset(dataSetBuilder.build());
                     }
+                    setFinalResult();
                 }
 
                 @Override
                 public void onAuthenticationFailed() {
-                    finish();
+                    finishAndRemoveTask();
                 }
             });
         } else {
-            finish();
+            finishAndRemoveTask();
         }
     }
 
-    private void fillResponse(String maspass) throws InvalidKeyException, BadPaddingException, NoSuchAlgorithmException, IllegalBlockSizeException, NoSuchPaddingException {
-        if (usernameNode != null || passwordNode != null) {
-            fillResponsePassword(maspass);
-        }else if (cardNoNode != null || nameNode != null || cvvNode != null){
-            fillResponseCard(maspass);
-        }
-    }
+    private void fillResponsePassword() {
 
-    private void fillResponseCard(String maspass) {
-        List<CardDataClass> cardData = new ArrayList<>(dataModel.dbHelper.getAllCards());
-
-        for (CardDataClass cD : cardData){
-            try {
-                cD.cardNo1 = cipherClass.decrypt(cD.cardNo1,maspass);
-                cD.cardNo2 = cipherClass.decrypt(cD.cardNo2,maspass);
-                cD.cardNo3 = cipherClass.decrypt(cD.cardNo3,maspass);
-                cD.cardNo4 = cipherClass.decrypt(cD.cardNo4,maspass);
-                cD.month = cipherClass.decrypt(cD.month,maspass);
-                cD.year = cipherClass.decrypt(cD.year,maspass);
-                cD.cvv = cipherClass.decrypt(cD.cvv,maspass);
-            } catch (NoSuchAlgorithmException e) {
-                e.printStackTrace();
-            } catch (NoSuchPaddingException e) {
-                e.printStackTrace();
-            } catch (InvalidKeyException e) {
-                e.printStackTrace();
-            } catch (BadPaddingException e) {
-                e.printStackTrace();
-            } catch (IllegalBlockSizeException e) {
-                e.printStackTrace();
-            }
-
-            Dataset.Builder dataSetBuilder = new Dataset.Builder();
-            if (cardNoNode != null){
-                dataSetBuilder.setValue(cardNoNode,
-                        AutofillValue.forText(cD.cardNo1+ cD.cardNo2+cD.cardNo3+cD.cardNo4),
-                        CreatePresentation(cD.bankName,cD.cardType));
-            }
-            if (expiryMonthNode != null && expiryYearNode == null){
-                dataSetBuilder.setValue(expiryMonthNode,
-                        AutofillValue.forText(cD.month+ cD.year),CreatePresentation(cD.bankName, cD.cardType));
-            }else if (expiryMonthNode == null && expiryYearNode != null){
-                dataSetBuilder.setValue(expiryYearNode,
-                        AutofillValue.forText(cD.month+ cD.year),CreatePresentation(cD.bankName, cD.cardType));
-            }else {
-                if (expiryMonthNode != null){
-                    dataSetBuilder.setValue(expiryMonthNode,
-                            AutofillValue.forText(cD.month),CreatePresentation(cD.bankName, cD.cardType));
-                }
-                if (expiryYearNode!=null){
-                    dataSetBuilder.setValue(expiryYearNode,
-                            AutofillValue.forText(cD.year),CreatePresentation(cD.bankName, cD.cardType));
-                }
-            }
-            if (nameNode!=null){
-                dataSetBuilder.setValue(nameNode,
-                        AutofillValue.forText(cD.name),CreatePresentation(cD.bankName, cD.cardType));
-            }
-            if (cvvNode!=null){
-                dataSetBuilder.setValue(cvvNode,
-                        AutofillValue.forText(cD.cvv),CreatePresentation(cD.bankName, cD.cardType));
-            }
-            fillResponseBuilder.addDataset(dataSetBuilder.build());
-        }
-        setFinalResult();
-    }
-
-    private void fillResponsePassword(String maspass) throws IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchAlgorithmException, NoSuchPaddingException {
-
-        if (usernameNode == null && emailNode !=null){
+        if (usernameNode == null && emailNode != null) {
             usernameNode = emailNode;
-        }else if (usernameNode == null && phoneNode != null){
+        } else if (usernameNode == null && phoneNode != null) {
             usernameNode = phoneNode;
         }
         List<PasswordDataClass> passwordData = new ArrayList<>(dataModel.dbHelper.getAllPassword());
-        List<PasswordDataClass> validPassword = new ArrayList<>();
+        final List<PasswordDataClass> validPassword = new ArrayList<>();
         for (PasswordDataClass pd : passwordData) {
             if (pd.subText.contains(packageName)) {
                 validPassword.add(pd);
@@ -204,17 +223,37 @@ public class FillResposeActivity extends AppCompatActivity {
 
         if (usernameNode != null && passwordNode != null) {
             if (validPassword.size() > 0) {
-                for (PasswordDataClass pd : validPassword) {
-                    pd.username = cipherClass.decrypt(pd.username, maspass);
-                    pd.password = cipherClass.decrypt(pd.password, maspass);
-                    fillResponseBuilder.addDataset(new Dataset.Builder()
-                            .setValue(usernameNode,
-                                    AutofillValue.forText(pd.username), CreatePresentation(pd.serviceName, pd.username))
-                            .setValue(passwordNode,
-                                    AutofillValue.forText(pd.password), CreatePresentation(pd.serviceName, pd.username))
-                            .build());
-                }
-                setFinalResult();
+                Authenticate authenticate = new Authenticate(this, R.string.decrypt);
+                authenticate.setListener(new Authenticate.authCallBack() {
+                    @Override
+                    public void onAuthenticationSuccess(String maspass) {
+                        for (PasswordDataClass pd : validPassword) {
+                            try {
+                                pd.username = cipherClass.decrypt(pd.username, maspass);
+                                pd.password = cipherClass.decrypt(pd.password, maspass);
+                            } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
+                                e.printStackTrace();
+                                finishAndRemoveTask();
+                            }
+                            fillResponseBuilder.addDataset(new Dataset.Builder()
+                                    .setValue(usernameNode,
+                                            AutofillValue.forText(pd.username), CreatePresentation(pd.serviceName, pd.username))
+                                    .setValue(passwordNode,
+                                            AutofillValue.forText(pd.password), CreatePresentation(pd.serviceName, pd.username))
+                                    .build());
+                        }
+                        fillResponseBuilder.setSaveInfo(new SaveInfo.Builder(
+                                SaveInfo.SAVE_DATA_TYPE_USERNAME | SaveInfo.SAVE_DATA_TYPE_PASSWORD,
+                                new AutofillId[]{usernameNode, passwordNode}).build());
+                        setFinalResult();
+                    }
+
+                    @Override
+                    public void onAuthenticationFailed() {
+                        finishAndRemoveTask();
+                    }
+                });
+
             } else {
                 fillResponseBuilder.setSaveInfo(new SaveInfo.Builder(
                         SaveInfo.SAVE_DATA_TYPE_USERNAME | SaveInfo.SAVE_DATA_TYPE_PASSWORD,
@@ -223,15 +262,33 @@ public class FillResposeActivity extends AppCompatActivity {
             }
         } else if (passwordNode != null) {
             if (validPassword.size() > 0) {
-                for (PasswordDataClass pd : validPassword) {
-                    pd.username = cipherClass.decrypt(pd.username, maspass);
-                    pd.password = cipherClass.decrypt(pd.password, maspass);
-                    fillResponseBuilder.addDataset(new Dataset.Builder()
-                            .setValue(passwordNode,
-                                    AutofillValue.forText(pd.password), CreatePresentation(pd.serviceName, pd.username))
-                            .build());
-                }
-                setFinalResult();
+                Authenticate authenticate = new Authenticate(this, R.string.decrypt);
+                authenticate.setListener(new Authenticate.authCallBack() {
+                    @Override
+                    public void onAuthenticationSuccess(String maspass) {
+                        for (PasswordDataClass pd : validPassword) {
+                            try {
+                                pd.username = cipherClass.decrypt(pd.username, maspass);
+                                pd.password = cipherClass.decrypt(pd.password, maspass);
+                            } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
+                                e.printStackTrace();
+                                finishAndRemoveTask();
+                            }
+                            fillResponseBuilder.addDataset(new Dataset.Builder()
+                                    .setValue(passwordNode,
+                                            AutofillValue.forText(pd.password), CreatePresentation(pd.serviceName, pd.username))
+                                    .build());
+                        }
+                        fillResponseBuilder.setSaveInfo(new SaveInfo.Builder(SaveInfo.SAVE_DATA_TYPE_PASSWORD,
+                                new AutofillId[]{passwordNode}).build());
+                        setFinalResult();
+                    }
+
+                    @Override
+                    public void onAuthenticationFailed() {
+                        finishAndRemoveTask();
+                    }
+                });
             } else {
                 fillResponseBuilder.setSaveInfo(new SaveInfo.Builder(SaveInfo.SAVE_DATA_TYPE_PASSWORD,
                         new AutofillId[]{passwordNode}).build());
@@ -239,18 +296,34 @@ public class FillResposeActivity extends AppCompatActivity {
             }
         } else if (usernameNode != null) {
             if (validPassword.size() > 0) {
-                for (PasswordDataClass pd : validPassword) {
-                    pd.username = cipherClass.decrypt(pd.username, maspass);
-                    pd.password = cipherClass.decrypt(pd.password, maspass);
-                    fillResponseBuilder.addDataset(new Dataset.Builder()
-                            .setValue(usernameNode,
-                                    AutofillValue.forText(pd.username), CreatePresentation(pd.serviceName, pd.username))
-                            .build());
-                }
-                setFinalResult();
+                Authenticate authenticate = new Authenticate(this, R.string.decrypt);
+                authenticate.setListener(new Authenticate.authCallBack() {
+                    @Override
+                    public void onAuthenticationSuccess(String maspass) {
+                        for (PasswordDataClass pd : validPassword) {
+                            try {
+                                pd.username = cipherClass.decrypt(pd.username, maspass);
+                                pd.password = cipherClass.decrypt(pd.password, maspass);
+                            } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
+                                e.printStackTrace();
+                                finishAndRemoveTask();
+                            }
+                            fillResponseBuilder.addDataset(new Dataset.Builder()
+                                    .setValue(usernameNode, AutofillValue.forText(pd.username),
+                                            CreatePresentation(pd.serviceName, pd.username)).build());
+                        }
+                        fillResponseBuilder.setSaveInfo(new SaveInfo.Builder(SaveInfo.SAVE_DATA_TYPE_USERNAME,
+                                new AutofillId[]{usernameNode}).build());
+                        setFinalResult();
+                    }
+
+                    @Override
+                    public void onAuthenticationFailed() {
+                        finishAndRemoveTask();
+                    }
+                });
             } else {
-                fillResponseBuilder.setSaveInfo(new SaveInfo.Builder(
-                        SaveInfo.SAVE_DATA_TYPE_USERNAME,
+                fillResponseBuilder.setSaveInfo(new SaveInfo.Builder(SaveInfo.SAVE_DATA_TYPE_USERNAME,
                         new AutofillId[]{usernameNode}).build());
                 setFinalResult();
             }
@@ -262,7 +335,7 @@ public class FillResposeActivity extends AppCompatActivity {
         Intent replyIntent = new Intent();
         replyIntent.putExtra(EXTRA_AUTHENTICATION_RESULT, fillResponse);
         setResult(RESULT_OK, replyIntent);
-        finish();
+        finishAndRemoveTask();
     }
 
 

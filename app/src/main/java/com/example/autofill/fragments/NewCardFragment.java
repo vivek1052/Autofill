@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 
 import com.example.autofill.MainActivity;
 import com.example.autofill.R;
@@ -41,6 +42,10 @@ public class NewCardFragment extends Fragment implements View.OnClickListener{
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_new_card, container, false);
         View view = binding.getRoot();
         binding.cardSave.setOnClickListener(this);
+        ArrayAdapter<CharSequence> cardTypeAdapter = ArrayAdapter.createFromResource(mainActivity,
+                R.array.card_types, android.R.layout.simple_spinner_item);
+        cardTypeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        binding.cardType.setAdapter(cardTypeAdapter);
         return view;
     }
 
@@ -67,7 +72,7 @@ public class NewCardFragment extends Fragment implements View.OnClickListener{
                         String year = (mainActivity.cipherClass.encrypt(binding.year.getText().toString(), mastPass));
                         String cvv = (mainActivity.cipherClass.encrypt(binding.cvv.getText().toString(), mastPass));
                         newCardData = new CardDataClass(1, binding.bankName.getText().toString(),
-                                binding.cardType.getText().toString(), binding.holderName.getText().toString(),
+                                binding.cardType.getSelectedItem().toString(), binding.holderName.getText().toString(),
                                 cardNo_1, cardNo_2, cardNo_3, cardNo_4, month, year, cvv);
                     } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
                         e.printStackTrace();

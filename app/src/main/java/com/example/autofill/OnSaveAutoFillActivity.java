@@ -7,17 +7,12 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
-import android.view.autofill.AutofillId;
 
 import com.example.autofill.dataClass.ParsedStructure;
 import com.example.autofill.dataClass.PasswordDataClass;
 import com.example.autofill.util.Authenticate;
 import com.example.autofill.util.CipherClass;
-import com.example.autofill.util.Contract;
 import com.example.autofill.util.DataModel;
-import com.example.autofill.util.MasterPasswrordPrompt;
-
-import org.w3c.dom.Text;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -76,16 +71,16 @@ public class OnSaveAutoFillActivity extends AppCompatActivity {
                         saveData(maspass);
                     } catch (IllegalBlockSizeException | InvalidKeyException | BadPaddingException | NoSuchAlgorithmException | NoSuchPaddingException e) {
                         e.printStackTrace();
-                        finish();
+                        finishAndRemoveTask();
                     }
                 }
 
                 @Override
                 public void onAuthenticationFailed() {
-                    finish();
+                    finishAndRemoveTask();
                 }
             });
-        }else {finish();}
+        }else {finishAndRemoveTask();}
 
     }
 
@@ -98,10 +93,14 @@ public class OnSaveAutoFillActivity extends AppCompatActivity {
             }
             newPassword.serviceName = appName;
             newPassword.subText = packageName;
-            newPassword.username = cipherClass.encrypt(usename,maspass);
-            newPassword.password = cipherClass.encrypt(password,maspass);
+            if (!TextUtils.isEmpty(usename)){
+                newPassword.username = cipherClass.encrypt(usename,maspass);
+            }
+            if (!TextUtils.isEmpty(password)){
+                newPassword.password = cipherClass.encrypt(password,maspass);
+            }
             dataModel.addNewPassword(newPassword);
         }
-        finish();
+        finishAndRemoveTask();
     }
 }

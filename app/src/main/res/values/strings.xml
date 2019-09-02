@@ -32,4 +32,22 @@
     <string name="channel_name">Autofill Channel</string>
     <string name="channel_description">Bankground task notifications</string>
     <string name="AutoFillServiceDescription">Assist with Autofill service for Browsers</string>
+    <string name="xxxx">XXXX</string>
+
+    <string-array name="dark_mode">
+        <item>2</item>
+        <item>1</item>
+        <item>-1</item>
+        <item>3</item>
+    </string-array>
+    <string-array name="dark_mode_alias">
+        <item>Night Mode Always On</item>
+        <item>Night Mode Always Off</item>
+        <item>Follow System Setting</item>
+        <item>Follow Battery Saver</item>
+    </string-array>
+    <string-array name="card_types">
+        <item>Credit Card</item>
+        <item>Debit Card</item>
+    </string-array>
 </resources>

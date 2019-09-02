@@ -9,7 +9,9 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.fragment.app.Fragment;
+import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
@@ -55,13 +57,13 @@ public class SettingsFragment extends Fragment {
     static MainActivity mainActivity;
     private static final String FINGERPRINT = "fingerPrintEnabled";
     private static final String AUTOFILL_SER = "autoFillService";
-    private static final String ACCESSIBILITY_SER = "accessibilityService";
     private static final String GOOGLEACCOUNT = "googleAccountLinked";
     private static final String RETRIEVE_BACKUP = "RetriveFromDrive";
+    private static final String DARK_MODE = "darkMode";
 
     private static final int RC_SIGN_IN = 1;
     private static final int JOB_ID = 305;
-    private static final int JOB_INTERVAL_HRS = 1;
+    private static final int JOB_INTERVAL_HRS = 12;
 
 
     public SettingsFragment() {
@@ -186,6 +188,9 @@ public class SettingsFragment extends Fragment {
                     scheduler.cancel(JOB_ID);
                     Snackbar.make(mainActivity.findViewById(android.R.id.content),"Auto Backup Stopped",Snackbar.LENGTH_LONG).show();
                 }
+            }else if (s.equals(DARK_MODE)){
+                ListPreference darkMode = prefFragContext.findPreference(s);
+                AppCompatDelegate.setDefaultNightMode(Integer.valueOf(darkMode.getValue()));
             }
         }
 
