@@ -33,6 +33,7 @@
     <string name="channel_description">Bankground task notifications</string>
     <string name="AutoFillServiceDescription">Assist with Autofill service for Browsers</string>
     <string name="xxxx">XXXX</string>
+    <string name="loginForm">LOGIN_FORM</string>
 
     <string-array name="dark_mode">
         <item>2</item>

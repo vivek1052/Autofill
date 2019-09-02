@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 public class CardDataClass implements Serializable {
     public String bankName, cardType, name, cardNo1, cardNo2, cardNo3, cardNo4, month, year, cvv;
-    int id;
+    public int id;
     public CardDataClass(int id, String bankName, String cardType, String name, String cardNo1, String cardNo2,
                          String cardNo3, String cardNo4, String month, String year, String cvv){
         this.id = id;

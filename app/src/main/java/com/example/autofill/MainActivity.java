@@ -6,15 +6,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.autofill.AutofillManager;
 
 import com.example.autofill.util.CipherClass;
 import com.example.autofill.util.DataModel;
 import com.google.android.material.navigation.NavigationView;
-import com.google.android.material.snackbar.Snackbar;
-import com.google.api.client.util.DateTime;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDelegate;
@@ -27,12 +22,8 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
-import androidx.preference.ListPreference;
 import androidx.preference.PreferenceManager;
 
-
-import java.io.IOException;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -78,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
         createNotificationChannel();
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         AppCompatDelegate.setDefaultNightMode(Integer.valueOf(preferences.getString(DARK_MODE,"")));
+
     }
 
     private void createNotificationChannel() {

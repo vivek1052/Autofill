@@ -72,6 +72,12 @@ public class DataModel {
        }
     }
 
+    public void deleteCards(List<CardDataClass> toBeDeleted){
+        for (int i=0; i<toBeDeleted.size();i++){
+            dbHelper.deleteCard(toBeDeleted.get(i).id);
+        }
+    }
+
     public List<InstalledApps> getInstalledApps(){
         PackageManager pm = context.getPackageManager();
         List<ApplicationInfo> l = pm.getInstalledApplications(PackageManager.GET_META_DATA);

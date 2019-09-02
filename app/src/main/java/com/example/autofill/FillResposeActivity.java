@@ -19,6 +19,7 @@ import com.example.autofill.util.Authenticate;
 import com.example.autofill.util.CipherClass;
 import com.example.autofill.util.DataModel;
 import com.example.autofill.util.GenericStringBase;
+import com.example.autofill.util.NodeParser;
 import com.google.common.net.InternetDomainName;
 
 import java.net.URI;
@@ -45,6 +46,9 @@ public class FillResposeActivity extends AppCompatActivity {
     FillResponse.Builder fillResponseBuilder;
     String packageName;
     ArrayList<ParsedStructure> passedNodes;
+    NodeParser nodeParser = new NodeParser();
+    private static final String LOGIN_FORM = "LOGIN_FORM" ;
+    private static final String CARD_FORM = "CARD_FORM" ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,7 +71,7 @@ public class FillResposeActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
-
+        String formType = nodeParser.determineFormType(passedNodes);
         for (int i = 0; i < passedNodes.size(); i++) {
             ParsedStructure ps = passedNodes.get(i);
             switch (ps.autofillhint) {
@@ -102,12 +106,11 @@ public class FillResposeActivity extends AppCompatActivity {
                     break;
             }
         }
-
-        if (usernameNode != null || passwordNode != null || emailNode != null || phoneNode != null) {
+        if (formType.equals(LOGIN_FORM)){
             fillResponsePassword();
-        } else if (cardNoNode != null || nameNode != null || cvvNode != null) {
+        }else if (formType.equals(CARD_FORM)){
             fillResponseCard();
-        } else {
+        }else {
             finishAndRemoveTask();
         }
 

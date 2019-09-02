@@ -12,13 +12,18 @@ public class GenericStringBase {
     public static String[] expiryMonth = {"month","mm"};
     public static String[] expiryYear = {"year","yy"};
     public static String[] cvv = {"cvv"};
+    public static String[] login_form = {View.AUTOFILL_HINT_USERNAME,View.AUTOFILL_HINT_PASSWORD,
+            View.AUTOFILL_HINT_EMAIL_ADDRESS,View.AUTOFILL_HINT_PHONE};
+    public static String[] card_form = {View.AUTOFILL_HINT_CREDIT_CARD_NUMBER,View.AUTOFILL_HINT_NAME,
+    View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_MONTH,View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_YEAR,
+    View.AUTOFILL_HINT_CREDIT_CARD_SECURITY_CODE};
     public static String[] autofillHints = {View.AUTOFILL_HINT_NAME,View.AUTOFILL_HINT_CREDIT_CARD_NUMBER,
     View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_DATE,View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_DAY,
     View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_MONTH,View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_YEAR,
     View.AUTOFILL_HINT_CREDIT_CARD_SECURITY_CODE,View.AUTOFILL_HINT_EMAIL_ADDRESS,View.AUTOFILL_HINT_PASSWORD,
     View.AUTOFILL_HINT_PHONE,View.AUTOFILL_HINT_POSTAL_ADDRESS,View.AUTOFILL_HINT_POSTAL_CODE,
     View.AUTOFILL_HINT_USERNAME};
-    public static String[] allowedHtmlInputTypes = {"text","password","email","month","number","password", "tel"};
+    public static String[] allowedHtmlInputTypes = {"text","password","email","month","number","password", "tel","select"};
     static String[] restrictedPackages = {"com.example.autofill"};
     public static String[] browser = {"org.mozilla.firefox", "org.mozilla.firefox_beta", "com.microsoft.emmx",
             "com.android.chrome", "com.chrome.beta", "com.android.browser", "com.brave.browser",

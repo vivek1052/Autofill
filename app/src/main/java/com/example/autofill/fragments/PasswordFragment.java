@@ -110,6 +110,7 @@ public class PasswordFragment extends Fragment implements DataUpdateCallback {
         public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
             MenuInflater menuInflater = actionMode.getMenuInflater();
             menuInflater.inflate(R.menu.contextual_menu, menu);
+            actionMode.setTitle("Select To Delete");
             return true;
         }
 
@@ -124,6 +125,7 @@ public class PasswordFragment extends Fragment implements DataUpdateCallback {
                 case R.id.delete_button:
                     mainActivity.dataModel.deletePasswords(toBeDeleted);
                     mainActivity.dataModel.triggerPasswordDataUpdated();
+                    actionMode.finish();
             }
             return true;
         }
