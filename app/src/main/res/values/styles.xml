@@ -4,7 +4,11 @@
     <style name="AppTheme" parent="Theme.MaterialComponents.DayNight">
         <item name="windowActionModeOverlay">true</item>
     </style>
-
+    <style name="CreditCard" parent="@style/Widget.MaterialComponents.CardView">
+        <item name="cardCornerRadius">15dp</item>
+        <item name="cardElevation">10dp</item>
+        <item name="cardUseCompatPadding">true</item>
+    </style>
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>

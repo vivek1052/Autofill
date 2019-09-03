@@ -14,173 +14,196 @@
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:orientation="vertical"
+        android:gravity="center_horizontal"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:cardCornerRadius="8dp"
-            app:cardElevation="10dp"
-            app:cardUseCompatPadding="true"
-            app:contentPadding="10dp">
+            style="@style/CreditCard"
+            android:layout_width="390dp"
+            android:layout_height="272dp">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/cardbackground_world" />
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
+
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
-                    <com.google.android.material.textfield.TextInputEditText
+
+                    <com.google.android.material.textview.MaterialTextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentStart="true"
-                        android:layout_marginStart="5dp"
-                        android:hint="@string/bankName"
+                        android:layout_alignParentTop="true"
+                        android:layout_marginStart="35dp"
+                        android:layout_marginTop="15dp"
                         android:text="@{cardData.bankName}"
+                        android:fontFamily="@font/creditfront"
+                        android:textColor="@color/card_label_color"
                         android:textSize="20sp"
-                        android:textStyle="bold"
-                        android:inputType="textCapCharacters"
-                        android:enabled="@{safeUnbox(editable)}"/>
+                        android:textStyle="bold" />
 
-                    <com.google.android.material.textfield.TextInputEditText
+                    <com.google.android.material.textview.MaterialTextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_alignParentTop="true"
+                        android:layout_marginTop="15dp"
                         android:layout_alignParentEnd="true"
-                        android:layout_marginEnd="5dp"
+                        android:layout_marginEnd="35dp"
                         android:text="@{cardData.cardType}"
-                        android:hint="@string/cardType"
                         android:textStyle="italic"
-                        android:enabled="@{safeUnbox(editable)}"/>
+                        android:textSize="20sp"
+                        android:fontFamily="@font/creditfront"
+                        android:textColor="@color/card_text_color"/>
+
                 </RelativeLayout>
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginTop="20dp">
-                    <com.google.android.material.textfield.TextInputEditText
+                    android:layout_marginTop="40dp"
+                    android:gravity="center_horizontal"
+                    android:orientation="horizontal">
+                    <com.google.android.material.textview.MaterialTextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginRight="5dp"
                         android:text="@{cardData.cardNo1}"
+                        android:maxLength="4"
                         android:textSize="20sp"
                         android:textStyle="bold"
-                        android:inputType="number"
-                        android:maxLength="4"
-                        android:layout_marginLeft="20dp"
-                        android:layout_marginRight="20dp"
-                        android:enabled="@{safeUnbox(editable)}"/>
-                    <com.google.android.material.textfield.TextInputEditText
+                        android:fontFamily="@font/ocramedium"
+                        android:textColor="@color/CTA_bg"/>
+
+                    <com.google.android.material.textview.MaterialTextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginLeft="5dp"
+                        android:layout_marginRight="5dp"
                         android:text="@{cardData.cardNo2}"
+                        android:maxLength="4"
                         android:textSize="20sp"
                         android:textStyle="bold"
-                        android:inputType="number"
-                        android:maxLength="4"
-                        android:layout_marginLeft="20dp"
-                        android:layout_marginRight="20dp"
-                        android:enabled="@{safeUnbox(editable)}"/>
-                    <com.google.android.material.textfield.TextInputEditText
+                        android:fontFamily="@font/ocramedium"
+                        android:textColor="@color/CTA_bg"/>
+
+                    <com.google.android.material.textview.MaterialTextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginLeft="5dp"
+                        android:layout_marginRight="5dp"
                         android:text="@{cardData.cardNo3}"
+                        android:maxLength="4"
                         android:textSize="20sp"
                         android:textStyle="bold"
-                        android:inputType="number"
-                        android:maxLength="4"
-                        android:layout_marginLeft="20dp"
-                        android:layout_marginRight="20dp"
-                        android:enabled="@{safeUnbox(editable)}"/>
-                    <com.google.android.material.textfield.TextInputEditText
+                        android:fontFamily="@font/ocramedium"
+                        android:textColor="@color/CTA_bg"/>
+
+                    <com.google.android.material.textview.MaterialTextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginLeft="5dp"
+                        android:layout_marginRight="10dp"
                         android:text="@{cardData.cardNo4}"
+                        android:maxLength="4"
                         android:textSize="20sp"
                         android:textStyle="bold"
-                        android:inputType="number"
-                        android:maxLength="4"
-                        android:layout_marginLeft="20dp"
-                        android:layout_marginRight="20dp"
-                        android:enabled="@{safeUnbox(editable)}"/>
+                        android:fontFamily="@font/ocramedium"
+                        android:textColor="@color/CTA_bg"/>
                 </LinearLayout>
+
                 <LinearLayout
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginTop="20dp">
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:layout_width="match_parent"
+                    android:layout_marginTop="30dp"
+                    android:layout_gravity="center_horizontal"
+                    android:orientation="horizontal">
+                    <com.google.android.material.textview.MaterialTextView
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@{cardData.name}"
-                        android:textSize="20sp"
-                        android:inputType="textCapCharacters"
-                        android:hint="@string/holderName"
-                        android:gravity="center_horizontal"
-                        android:enabled="@{safeUnbox(editable)}"/>
+                        android:fontFamily="@font/ocramedium"
+                        android:textColor="@color/card_text_color"
+                        android:textSize="20sp"/>
+
                 </LinearLayout>
+
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp">
+                    android:layout_marginTop="20dp">
 
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentStart="true"
-                        android:layout_marginStart="5dp"
+                        android:layout_marginStart="15dp"
                         android:orientation="horizontal">
-                        <com.google.android.material.textview.MaterialTextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/Validity"
-                            android:layout_marginRight="5dp"
-                            android:enabled="false"/>
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:enabled="@{safeUnbox(editable)}"
-                            android:text="@{cardData.month}"
-                            android:inputType="number"
-                            android:hint="@string/mm"
-                            android:maxLength="2"/>
 
                         <com.google.android.material.textview.MaterialTextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="/"
-                            android:textSize="20sp"
-                            android:enabled="false"/>
-                        <com.google.android.material.textfield.TextInputEditText
+                            android:layout_marginRight="5dp"
+                            android:fontFamily="@font/creditfront"
+                            android:textColor="@color/card_text_color"
+                            android:text="@string/Validity" />
+                        <com.google.android.material.textview.MaterialTextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:enabled="@{safeUnbox(editable)}"
+                            android:text="@{cardData.month}"
+                            android:maxLength="2"
+                            android:fontFamily="@font/ocramedium"
+                            android:textColor="@color/card_text_color"/>
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:enabled="false"
+                            android:text="/"
+                            android:fontFamily="@font/creditfront"
+                            android:textColor="@color/card_text_color"/>
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
                             android:text="@{cardData.year}"
-                            android:inputType="number"
-                            android:hint="@string/yy"
-                            android:maxLength="2"/>
+                            android:maxLength="2"
+                            android:fontFamily="@font/ocramedium"
+                            android:textColor="@color/card_text_color"/>
                     </LinearLayout>
 
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentEnd="true"
-                        android:layout_marginEnd="5dp"
+                        android:layout_marginEnd="15dp"
                         android:orientation="horizontal">
+
                         <com.google.android.material.textview.MaterialTextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/cvv"
                             android:layout_marginRight="5dp"
-                            android:enabled="false"/>
-                        <com.google.android.material.textfield.TextInputEditText
+                            android:fontFamily="@font/creditfront"
+                            android:text="@string/cvv"
+                            android:textColor="@color/card_text_color" />
+
+                        <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:fontFamily="@font/ocramedium"
                             android:text="@{cardData.cvv}"
-                            android:inputType="number"
                             android:maxLength="3"
-                            android:textStyle="italic"
-                            android:hint="@string/cvv"
-                            android:enabled="@{safeUnbox(editable)}"/>
+                            android:textColor="@color/card_text_color"
+                            android:textStyle="italic" />
+
                     </LinearLayout>
                 </RelativeLayout>
             </LinearLayout>

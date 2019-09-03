@@ -68,8 +68,9 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupWithNavController(navigationView,navController);
         createNotificationChannel();
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        AppCompatDelegate.setDefaultNightMode(Integer.valueOf(preferences.getString(DARK_MODE,"")));
-
+        if (!preferences.getString(DARK_MODE,"").equals("")){
+            AppCompatDelegate.setDefaultNightMode(Integer.valueOf(preferences.getString(DARK_MODE,"")));
+        }
     }
 
     private void createNotificationChannel() {

@@ -1,2 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+    <color name="card_text_color">#FFFFFF</color>
+    <color name="card_label_color">#D4D9DC</color>
+    <color name="CTA_text">#FFFFFF</color>
+    <color name="CTA_bg">#32C25E</color>
+</resources>

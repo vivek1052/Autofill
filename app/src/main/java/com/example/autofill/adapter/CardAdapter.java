@@ -12,6 +12,7 @@ import com.example.autofill.R;
 import com.example.autofill.dataClass.CardDataClass;
 import com.example.autofill.databinding.CardRowBinding;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class CardAdapter extends ArrayAdapter {

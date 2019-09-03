@@ -4,16 +4,21 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".fragments.NewCardFragment">
 
-    <com.google.android.material.card.MaterialCardView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:cardCornerRadius="8dp"
-        app:cardElevation="10dp"
-        app:cardUseCompatPadding="true"
-        app:contentPadding="10dp">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="390dp"
+        android:layout_height="272dp"
+        android:layout_gravity="center_horizontal"
+        style="@style/CreditCard">
+        <androidx.appcompat.widget.AppCompatImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/cardbackground_world" />
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -26,83 +31,108 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentStart="true"
-                    android:layout_marginStart="5dp"
+                    android:layout_alignParentTop="true"
+                    android:layout_marginStart="35dp"
+                    android:layout_marginTop="15dp"
                     android:hint="@string/bankName"
+                    android:maxLength="13"
                     android:textSize="20sp"
                     android:textStyle="bold"
+                    android:fontFamily="@font/creditfront"
+                    android:textColor="@color/card_label_color"
+                    android:textColorHint="@color/card_label_color"
                     android:inputType="textCapCharacters" />
 
                 <androidx.appcompat.widget.AppCompatSpinner
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:id="@+id/card_type"
-                    android:layout_marginTop="10dp"
+                    android:layout_alignParentTop="true"
+                    android:layout_marginTop="25dp"
                     android:layout_alignParentEnd="true"
-                    android:layout_marginEnd="5dp"/>
+                    android:layout_marginEnd="5dp"
+                    android:fontFamily="@font/creditfront"
+                    android:outlineAmbientShadowColor="@color/CTA_bg" />
             </RelativeLayout>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
                 android:orientation="horizontal"
-                android:layout_marginTop="20dp">
+                android:layout_marginTop="10dp">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/cardNo_1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="20sp"
                     android:textStyle="bold"
+                    android:fontFamily="@font/ocramedium"
+                    android:textColor="@color/CTA_bg"
+                    android:textColorHint="@color/CTA_bg"
                     android:inputType="number"
                     android:maxLength="4"
                     android:hint="@string/xxxx"
-                    android:layout_marginLeft="20dp"
-                    android:layout_marginRight="20dp" />
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="5dp" />
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/cardNo_2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="20sp"
                     android:textStyle="bold"
+                    android:fontFamily="@font/ocramedium"
+                    android:textColor="@color/CTA_bg"
+                    android:textColorHint="@color/CTA_bg"
                     android:inputType="number"
                     android:maxLength="4"
                     android:hint="@string/xxxx"
-                    android:layout_marginLeft="20dp"
-                    android:layout_marginRight="20dp" />
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginRight="5dp" />
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/cardNo_3"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="20sp"
                     android:textStyle="bold"
+                    android:fontFamily="@font/ocramedium"
+                    android:textColor="@color/CTA_bg"
+                    android:textColorHint="@color/CTA_bg"
                     android:inputType="number"
                     android:maxLength="4"
                     android:hint="@string/xxxx"
-                    android:layout_marginLeft="20dp"
-                    android:layout_marginRight="20dp" />
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginRight="5dp" />
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/cardNo_4"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="20sp"
                     android:textStyle="bold"
+                    android:fontFamily="@font/ocramedium"
+                    android:textColor="@color/CTA_bg"
+                    android:textColorHint="@color/CTA_bg"
                     android:inputType="number"
                     android:maxLength="4"
                     android:hint="@string/xxxx"
-                    android:layout_marginLeft="20dp"
-                    android:layout_marginRight="20dp"/>
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginRight="10dp"/>
             </LinearLayout>
             <LinearLayout
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginTop="20dp">
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="5dp">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/holder_name"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="20sp"
                     android:inputType="textCapCharacters"
                     android:hint="@string/holderName"
-                    android:gravity="center_horizontal" />
+                    android:fontFamily="@font/ocramedium"
+                    android:textColor="@color/card_text_color"
+                    android:textColorHint="@color/card_text_color"/>
             </LinearLayout>
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -113,63 +143,81 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentStart="true"
-                    android:layout_marginStart="5dp"
+                    android:layout_marginStart="10dp"
                     android:orientation="horizontal">
+
                     <com.google.android.material.textview.MaterialTextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginEnd="5dp"
                         android:text="@string/Validity"
-                        android:layout_marginRight="5dp" />
+                        android:fontFamily="@font/creditfront"
+                        android:textColor="@color/card_text_color"/>
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/month"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:inputType="number"
                         android:hint="@string/mm"
-                        android:maxLength="2"/>
+                        android:maxLength="2"
+                        android:fontFamily="@font/ocramedium"
+                        android:textColor="@color/card_text_color"
+                        android:textColorHint="@color/card_text_color"/>
 
                     <com.google.android.material.textview.MaterialTextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="/"
-                        android:textSize="20sp" />
+                        android:fontFamily="@font/creditfront"
+                        android:textColor="@color/card_text_color"/>
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/year"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:inputType="number"
                         android:hint="@string/yy"
-                        android:maxLength="2"/>
+                        android:maxLength="2"
+                        android:fontFamily="@font/ocramedium"
+                        android:textColor="@color/card_text_color"
+                        android:textColorHint="@color/card_text_color"/>
                 </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentEnd="true"
-                    android:layout_marginEnd="5dp"
+                    android:layout_marginEnd="10dp"
                     android:orientation="horizontal">
+
                     <com.google.android.material.textview.MaterialTextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginRight="5dp"
                         android:text="@string/cvv"
-                        android:layout_marginRight="5dp" />
+                        android:fontFamily="@font/creditfront"
+                        android:textColor="@color/card_text_color"/>
+
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/cvv"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:hint="@string/cvv"
                         android:inputType="number"
                         android:maxLength="3"
                         android:textStyle="italic"
-                        android:hint="@string/cvv" />
+                        android:fontFamily="@font/ocramedium"
+                        android:textColor="@color/card_text_color"
+                        android:textColorHint="@color/card_text_color" />
                 </LinearLayout>
             </RelativeLayout>
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/cardSave"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/encrypt"
-                android:layout_marginTop="20dp"/>
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
+    <com.google.android.material.button.MaterialButton
+    android:id="@+id/cardSave"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="@string/encrypt"
+    android:layout_marginTop="20dp"/>
+    </LinearLayout>
 </FrameLayout>
 </layout>

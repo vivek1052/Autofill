@@ -50,6 +50,11 @@ public class NodeParser {
                 break;
             }
         }
+        for (ParsedStructure pn:parsedPassedNodes){
+            if (pn.autofillhint.contains(UNKNOWN_HINT)){
+                parsedPassedNodes.remove(pn);
+            }
+        }
 
         return parsedPassedNodes;
     }
@@ -156,7 +161,8 @@ public class NodeParser {
     }
 
     private String buildSearchQuery(AssistStructure.ViewNode viewNode) {
-        String searchQuery = viewNode.getIdEntry()+"|"+viewNode.getHint();
+        String searchQuery = viewNode.getIdEntry()+"|"+viewNode.getHint()+"|"+
+                viewNode.getContentDescription();
         if (viewNode.getHtmlInfo() != null) {
             List<Pair<String, String>> HtmlValues = viewNode.getHtmlInfo().getAttributes();
             for (Pair<String, String> hv : HtmlValues) {

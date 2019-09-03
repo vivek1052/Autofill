@@ -1,20 +1,33 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        debug_release {
+            storeFile file('C:\\Users\\vivparashar\\AndroidStudioProjects\\keystore\\autofill.jks')
+            keyAlias = 'KEY1_AUTOFILL'
+            storePassword 'vivek@goal1052'
+            keyPassword 'vivek@goal1052'
+        }
+    }
     compileSdkVersion 29
     buildToolsVersion "29.0.2"
     defaultConfig {
         applicationId "com.example.autofill"
-        minSdkVersion 28
+        minSdkVersion 26
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        signingConfig signingConfigs.debug_release
     }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.debug_release
+        }
+        debug {
+            signingConfig signingConfigs.debug_release
         }
     }
     dataBinding {
