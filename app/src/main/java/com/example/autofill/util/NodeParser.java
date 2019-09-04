@@ -1,9 +1,11 @@
 package com.example.autofill.util;
 
 import android.app.assist.AssistStructure;
+import android.app.assist.AssistStructure.ViewNode;
 import android.text.InputType;
 import android.util.Pair;
 import android.view.View;
+import android.view.autofill.AutofillId;
 
 import com.example.autofill.dataClass.ParsedStructure;
 
@@ -24,39 +26,15 @@ public class NodeParser {
     private static final String CARD_FORM = "CARD_FORM" ;
 
     public ArrayList<ParsedStructure> TraverseStructure(AssistStructure structure) {
-        List<viewNodeDataClass> passedNodes = new ArrayList<>();
+        ArrayList<ParsedStructure> passedNodes = new ArrayList<>();
         int nodes = structure.getWindowNodeCount();
 
         for (int i = 0; i < nodes; i++) {
             AssistStructure.WindowNode windowNode = structure.getWindowNodeAt(i);
-            AssistStructure.ViewNode viewNode = windowNode.getRootViewNode();
+            ViewNode viewNode = windowNode.getRootViewNode();
             passedNodes.addAll(traverseNode(viewNode));
         }
-        if (passedNodes.size()==0){
-            return new ArrayList<>();
-        }
-
-        ArrayList<ParsedStructure> parsedPassedNodes = new ArrayList<>();
-        for (int i = 0; i < passedNodes.size(); i++) {
-            parsedPassedNodes.add(new ParsedStructure(passedNodes.get(i).viewNode.getAutofillId(),
-                    passedNodes.get(i).autoFillHint, String.valueOf(passedNodes.get(i).viewNode.getText()),
-                    passedNodes.get(i).viewNode.getWebScheme() + "://" + passedNodes.get(i).viewNode.getWebDomain(),
-                    passedNodes.get(i).viewNode.getAutofillOptions()));
-        }
-
-        for (ParsedStructure pn:parsedPassedNodes){
-            if (pn.autofillhint.contains(UNKNOWN_HINT)){
-                parsedPassedNodes = cleanseNode(parsedPassedNodes);
-                break;
-            }
-        }
-        for (ParsedStructure pn:parsedPassedNodes){
-            if (pn.autofillhint.contains(UNKNOWN_HINT)){
-                parsedPassedNodes.remove(pn);
-            }
-        }
-
-        return parsedPassedNodes;
+        return passedNodes;
     }
 
     private ArrayList<ParsedStructure> cleanseNode(ArrayList<ParsedStructure> passedNodes) {
@@ -111,8 +89,8 @@ public class NodeParser {
         return "";
     }
 
-    public List<viewNodeDataClass> traverseNode(AssistStructure.ViewNode viewNode) {
-        List<viewNodeDataClass> passedNodes = new ArrayList<>();
+    public ArrayList<ParsedStructure> traverseNode(ViewNode viewNode) {
+        ArrayList<ParsedStructure> passedNodes = new ArrayList<>();
 
         if (String.valueOf(viewNode.getClassName()).contains(EDIT_TEXT)
                 || (viewNode.getHtmlInfo() != null && viewNode.getHtmlInfo().getTag().contains(INPUT))) {
@@ -122,45 +100,45 @@ public class NodeParser {
 
             }else if (viewNode.getAutofillHints() != null && CompareStringBase(viewNode.getAutofillHints()[0],
                     GenericStringBase.autofillHints)) {
-                passedNodes.add(new viewNodeDataClass(viewNode, viewNode.getAutofillHints()[0]));
+                passedNodes.add(new ParsedStructure(viewNode.getAutofillId(), viewNode.getAutofillHints()[0]));
             } else if (CompareStringBase(searchQuery, GenericStringBase.password)) {
-                passedNodes.add(new viewNodeDataClass(viewNode, View.AUTOFILL_HINT_PASSWORD));
+                passedNodes.add(new ParsedStructure(viewNode.getAutofillId(), View.AUTOFILL_HINT_PASSWORD));
             } else if (CompareStringBase(searchQuery, GenericStringBase.username)) {
-                passedNodes.add(new viewNodeDataClass(viewNode, View.AUTOFILL_HINT_USERNAME));
+                passedNodes.add(new ParsedStructure(viewNode.getAutofillId(), View.AUTOFILL_HINT_USERNAME));
             } else if (CompareStringBase(searchQuery, GenericStringBase.email)) {
-                passedNodes.add(new viewNodeDataClass(viewNode, View.AUTOFILL_HINT_EMAIL_ADDRESS));
+                passedNodes.add(new ParsedStructure(viewNode.getAutofillId(), View.AUTOFILL_HINT_EMAIL_ADDRESS));
             } else if (CompareStringBase(searchQuery, GenericStringBase.phone)) {
-                passedNodes.add(new viewNodeDataClass(viewNode, View.AUTOFILL_HINT_PHONE));
+                passedNodes.add(new ParsedStructure(viewNode.getAutofillId(), View.AUTOFILL_HINT_PHONE));
             } else if (CompareStringBase(searchQuery, GenericStringBase.expiryMonth)) {
-                passedNodes.add(new viewNodeDataClass(viewNode, View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_MONTH));
+                passedNodes.add(new ParsedStructure(viewNode.getAutofillId(), View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_MONTH));
             } else if (CompareStringBase(searchQuery, GenericStringBase.expiryYear)) {
-                passedNodes.add(new viewNodeDataClass(viewNode, View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_YEAR));
+                passedNodes.add(new ParsedStructure(viewNode.getAutofillId(), View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_YEAR));
             } else if (CompareStringBase(searchQuery, GenericStringBase.holderName)) {
-                passedNodes.add(new viewNodeDataClass(viewNode, View.AUTOFILL_HINT_NAME));
+                passedNodes.add(new ParsedStructure(viewNode.getAutofillId(), View.AUTOFILL_HINT_NAME));
             } else if (CompareStringBase(searchQuery, GenericStringBase.cvv)) {
-                passedNodes.add(new viewNodeDataClass(viewNode, View.AUTOFILL_HINT_CREDIT_CARD_SECURITY_CODE));
+                passedNodes.add(new ParsedStructure(viewNode.getAutofillId(), View.AUTOFILL_HINT_CREDIT_CARD_SECURITY_CODE));
             } else if (CompareStringBase(searchQuery, GenericStringBase.cardNo)) {
-                passedNodes.add(new viewNodeDataClass(viewNode, View.AUTOFILL_HINT_CREDIT_CARD_NUMBER));
+                passedNodes.add(new ParsedStructure(viewNode.getAutofillId(), View.AUTOFILL_HINT_CREDIT_CARD_NUMBER));
             } else if (viewNode.getInputType() == InputType.TYPE_TEXT_VARIATION_PASSWORD ||
                     viewNode.getInputType() == InputType.TYPE_NUMBER_VARIATION_PASSWORD ||
                     viewNode.getInputType() == InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD) {
-                passedNodes.add(new viewNodeDataClass(viewNode, View.AUTOFILL_HINT_PASSWORD));
+                passedNodes.add(new ParsedStructure(viewNode.getAutofillId(), View.AUTOFILL_HINT_PASSWORD));
             } else if (viewNode.getInputType() == InputType.TYPE_CLASS_PHONE ||
                     viewNode.getInputType() == InputType.TYPE_TEXT_VARIATION_PHONETIC) {
-                passedNodes.add(new viewNodeDataClass(viewNode, View.AUTOFILL_HINT_PHONE));
+                passedNodes.add(new ParsedStructure(viewNode.getAutofillId(), View.AUTOFILL_HINT_PHONE));
             }else {
-                passedNodes.add(new viewNodeDataClass(viewNode, UNKNOWN_HINT));
+                passedNodes.add(new ParsedStructure(viewNode.getAutofillId(), UNKNOWN_HINT));
             }
         }
 
         for (int i = 0; i < viewNode.getChildCount(); i++) {
-            AssistStructure.ViewNode childNode = viewNode.getChildAt(i);
+            ViewNode childNode = viewNode.getChildAt(i);
             passedNodes.addAll(traverseNode(childNode));
         }
         return passedNodes;
     }
 
-    private String buildSearchQuery(AssistStructure.ViewNode viewNode) {
+    private String buildSearchQuery(ViewNode viewNode) {
         String searchQuery = viewNode.getIdEntry()+"|"+viewNode.getHint()+"|"+
                 viewNode.getContentDescription();
         if (viewNode.getHtmlInfo() != null) {
@@ -194,14 +172,31 @@ public class NodeParser {
         return false;
     }
 
-    class viewNodeDataClass {
-        AssistStructure.ViewNode viewNode;
-        String autoFillHint;
+    public ViewNode TraverseStructure(AssistStructure structure, AutofillId searchId) {
+        int nodes = structure.getWindowNodeCount();
 
-        public viewNodeDataClass(AssistStructure.ViewNode viewNode, String autoFillHint) {
-            this.autoFillHint = autoFillHint;
-            this.viewNode = viewNode;
+        for (int i = 0; i < nodes; i++) {
+            AssistStructure.WindowNode windowNode = structure.getWindowNodeAt(i);
+            ViewNode viewNode = traverseNode(windowNode.getRootViewNode(),searchId);
+            if (viewNode!=null){
+                return viewNode;
+            }
         }
+        return null;
+    }
+
+    private ViewNode traverseNode(ViewNode viewNode, AutofillId searchId) {
+        if (viewNode.getAutofillId().equals(searchId)){
+            return viewNode;
+        }
+        for (int i = 0; i < viewNode.getChildCount(); i++) {
+            ViewNode childNode = viewNode.getChildAt(i);
+            ViewNode resultNode = traverseNode(childNode,searchId);
+            if (resultNode!=null){
+                return resultNode;
+            }
+        }
+        return null;
     }
 
 }

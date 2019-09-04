@@ -42,7 +42,8 @@ public class AutofillServiceExtend extends AutofillService {
         }
 
         ArrayList<ParsedStructure> passedNodes = nodeParser.TraverseStructure(structure);
-        if (passedNodes.size()==0){
+        String formType = nodeParser.determineFormType(passedNodes);
+        if (passedNodes.size()==0 || formType.equals("")){
             return;
         }
         AutofillId[] autofillId = new AutofillId[passedNodes.size()];
@@ -54,11 +55,12 @@ public class AutofillServiceExtend extends AutofillService {
         authPresentation.setTextViewText(android.R.id.text1, "Autofill Master Password");
         Intent authIntent = new Intent(this, FillResposeActivity.class);
 
-        Bundle bundle = new Bundle();
-        bundle.putParcelableArrayList("passedNodes", passedNodes);
-        bundle.putString("packageName", packageName);
+        Bundle fillReqBundle = new Bundle();
+        fillReqBundle.putParcelableArrayList("PassedNodes", passedNodes);
+        fillReqBundle.putParcelable("FillRequest",fillRequest);
+        fillReqBundle.putString("FormType",formType);
 
-        authIntent.putExtra("Data", bundle);
+        authIntent.putExtra("fillReqBundle", fillReqBundle);
         IntentSender intentSender = PendingIntent.getActivity(
                 this,
                 1001,
@@ -75,25 +77,13 @@ public class AutofillServiceExtend extends AutofillService {
 
     @Override
     public void onSaveRequest(SaveRequest saveRequest, SaveCallback saveCallback) {
-        // Get the structure from the request
-        List<FillContext> context = saveRequest.getFillContexts();
-        AssistStructure structure = context.get(context.size() - 1).getStructure();
-        ArrayList<ParsedStructure> passedNodes = nodeParser.TraverseStructure(structure);
-        if (passedNodes.size()==0){
-            return;
-        }
-        String packageName = structure.getActivityComponent().getPackageName();
 
-        Bundle bundle = new Bundle();
-        bundle.putParcelableArrayList("passedNodes", passedNodes);
-        bundle.putString("packageName", packageName);
-
+        Bundle saveReqBundle = new Bundle();
+        saveReqBundle.putParcelable("saveRequest",saveRequest);
         Intent saveIntent = new Intent(this, OnSaveAutoFillActivity.class);
-        saveIntent.putExtra("Data", bundle);
+        saveIntent.putExtra("saveReqBundle", saveReqBundle);
         saveIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         this.startActivity(saveIntent);
         saveCallback.onSuccess();
     }
-
-
 }

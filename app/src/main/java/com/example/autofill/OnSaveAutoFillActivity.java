@@ -2,21 +2,27 @@ package com.example.autofill;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.assist.AssistStructure;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.service.autofill.FillContext;
+import android.service.autofill.SaveRequest;
 import android.text.TextUtils;
 import android.view.View;
+import android.view.autofill.AutofillId;
 
 import com.example.autofill.dataClass.ParsedStructure;
 import com.example.autofill.dataClass.PasswordDataClass;
 import com.example.autofill.util.Authenticate;
 import com.example.autofill.util.CipherClass;
 import com.example.autofill.util.DataModel;
+import com.example.autofill.util.NodeParser;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -27,7 +33,9 @@ public class OnSaveAutoFillActivity extends AppCompatActivity {
     CipherClass cipherClass;
     String packageName;
     String appName;
-    String password, phoneNo, usename, emailAddress;
+    AutofillId usernameId,passwordId;
+    AssistStructure.ViewNode usernameNode, passwordNode;
+    NodeParser nodeParser = new NodeParser();
     PasswordDataClass newPassword = new PasswordDataClass(0,"","","","");
 
     @Override
@@ -36,33 +44,42 @@ public class OnSaveAutoFillActivity extends AppCompatActivity {
 
         dataModel = new DataModel(this);
         cipherClass = new CipherClass();
-        final Bundle bundle = getIntent().getBundleExtra("Data");
-        packageName = bundle.getString("packageName");
+        Bundle saveReqBundle = getIntent().getBundleExtra("saveReqBundle");
+        SaveRequest saveRequest = saveReqBundle.getParcelable("saveRequest");
+        List<FillContext> fillContextList = saveRequest.getFillContexts();
+        packageName = fillContextList.get(fillContextList.size()-1).getStructure()
+        .getActivityComponent().getPackageName();
         try {
             ApplicationInfo ai = getPackageManager().getApplicationInfo(packageName,0);
             appName = getPackageManager().getApplicationLabel(ai).toString();
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
-        ArrayList<ParsedStructure> passedNodes = bundle.getParcelableArrayList("passedNodes");
 
-        for (ParsedStructure ps : passedNodes) {
-            switch (ps.autofillhint) {
-                case View.AUTOFILL_HINT_USERNAME:
-                    usename = ps.text;
-                    break;
-                case View.AUTOFILL_HINT_PASSWORD:
-                    password = ps.text;
-                    break;
-                case View.AUTOFILL_HINT_PHONE:
-                    phoneNo = ps.text;
-                case View.AUTOFILL_HINT_EMAIL_ADDRESS:
-                    emailAddress = ps.text;
+        Bundle clientState = saveRequest.getClientState();
+        usernameId = clientState.getParcelable("userNameId");
+        passwordId = clientState.getParcelable("passwordId");
+
+        if (fillContextList.size()>1){
+            if (usernameId!=null){
+                usernameNode = nodeParser.TraverseStructure(fillContextList.get(0).getStructure(),usernameId);
+            }
+            if (passwordId!=null){
+                passwordNode = nodeParser.TraverseStructure(fillContextList.get(1)
+                        .getStructure(),passwordId);
+            }
+        }else {
+            if (usernameId!=null){
+                usernameNode = nodeParser.TraverseStructure(fillContextList.get(fillContextList.size()-1)
+                        .getStructure(),usernameId);
+            }
+            if (passwordId!=null){
+                passwordNode = nodeParser.TraverseStructure(fillContextList.get(fillContextList.size()-1)
+                        .getStructure(),passwordId);
             }
         }
 
-        if (!TextUtils.isEmpty(usename) || !TextUtils.isEmpty(password) || !TextUtils.isEmpty(phoneNo)
-           || !TextUtils.isEmpty(emailAddress)){
+        if (!TextUtils.isEmpty(usernameNode.getText()) && !TextUtils.isEmpty(passwordNode.getText())){
             Authenticate authenticate = new Authenticate(this,R.string.encrypt);
             authenticate.setListener(new Authenticate.authCallBack() {
                 @Override
@@ -85,22 +102,12 @@ public class OnSaveAutoFillActivity extends AppCompatActivity {
     }
 
     private void saveData(String maspass) throws IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchAlgorithmException, NoSuchPaddingException {
-        if (!TextUtils.isEmpty(usename) || !TextUtils.isEmpty(password)){
-            if (TextUtils.isEmpty(usename) && !TextUtils.isEmpty(emailAddress)){
-                usename = emailAddress;
-            }else if (TextUtils.isEmpty(usename) && !TextUtils.isEmpty(phoneNo)){
-                usename = phoneNo;
-            }
+
             newPassword.serviceName = appName;
             newPassword.subText = packageName;
-            if (!TextUtils.isEmpty(usename)){
-                newPassword.username = cipherClass.encrypt(usename,maspass);
-            }
-            if (!TextUtils.isEmpty(password)){
-                newPassword.password = cipherClass.encrypt(password,maspass);
-            }
+            newPassword.username = cipherClass.encrypt(usernameNode.getText().toString(),maspass);
+            newPassword.password = cipherClass.encrypt(passwordNode.getText().toString(),maspass);
             dataModel.addNewPassword(newPassword);
-        }
-        finishAndRemoveTask();
+            finishAndRemoveTask();
     }
 }

@@ -1,8 +1,13 @@
 package com.example.autofill;
 
+import android.app.assist.AssistStructure;
+import android.app.assist.AssistStructure.ViewNode;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.service.autofill.Dataset;
+import android.service.autofill.FillContext;
+import android.service.autofill.FillRequest;
 import android.service.autofill.FillResponse;
 import android.service.autofill.SaveInfo;
 import android.view.View;
@@ -28,6 +33,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.time.Month;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -39,13 +45,13 @@ import static android.view.autofill.AutofillManager.EXTRA_AUTHENTICATION_RESULT;
 
 public class FillResposeActivity extends AppCompatActivity {
 
-    AutofillId usernameNode, passwordNode, phoneNode, emailNode, cardNoNode, expiryMonthNode, expiryYearNode, nameNode, cvvNode;
-    int expiryMonthIndex, expiryYearIndex;
+    AutofillId usernameNodeId, passwordNodeId, phoneNodeId, emailNodeId, cardNoNodeId, expiryMonNodeID, expiryYearNodeId, nameNodeId, cvvNodeId;
+    ViewNode usernameNode, passwordNode, phoneNode, emailNode, cardNoNode, expiryMonthNode, expiryYearNode, nameNode, cvvNode;
+    String packageName;
     DataModel dataModel;
     CipherClass cipherClass;
+    FillRequest fillRequest;
     FillResponse.Builder fillResponseBuilder;
-    String packageName;
-    ArrayList<ParsedStructure> passedNodes;
     NodeParser nodeParser = new NodeParser();
     private static final String LOGIN_FORM = "LOGIN_FORM" ;
     private static final String CARD_FORM = "CARD_FORM" ;
@@ -58,54 +64,72 @@ public class FillResposeActivity extends AppCompatActivity {
         dataModel = new DataModel(this);
         cipherClass = new CipherClass();
         fillResponseBuilder = new FillResponse.Builder();
-        Bundle bundle = intent.getBundleExtra("Data");
-        packageName = bundle.getString("packageName");
 
-        passedNodes = bundle.getParcelableArrayList("passedNodes");
+        Bundle fillReqBundle = intent.getBundleExtra("fillReqBundle");
+        fillRequest = fillReqBundle.getParcelable("FillRequest");
+        String formType = fillReqBundle.getString("FormType");
+        ArrayList<ParsedStructure>  passedNodes = fillReqBundle.getParcelableArrayList("PassedNodes");
+        List<FillContext> fillContexts = fillRequest.getFillContexts();
+        AssistStructure assistStructure = fillContexts.get(fillContexts.size()-1).getStructure();
+        packageName = assistStructure.getActivityComponent().getPackageName();
+
+        for (int i = 0; i < passedNodes.size(); i++) {
+            ParsedStructure ps = passedNodes.get(i);
+            switch (ps.autofillhint) {
+                case View.AUTOFILL_HINT_USERNAME:
+                    usernameNodeId = ps.nodeId;
+                    usernameNode = nodeParser.TraverseStructure(assistStructure,ps.nodeId);
+                    break;
+                case View.AUTOFILL_HINT_EMAIL_ADDRESS:
+                    emailNodeId = ps.nodeId;
+                    emailNode = nodeParser.TraverseStructure(assistStructure,ps.nodeId);
+                    break;
+                case View.AUTOFILL_HINT_PASSWORD:
+                    passwordNodeId = ps.nodeId;
+                    passwordNode = nodeParser.TraverseStructure(assistStructure,ps.nodeId);
+                    break;
+                case View.AUTOFILL_HINT_PHONE:
+                    phoneNodeId = ps.nodeId;
+                    phoneNode = nodeParser.TraverseStructure(assistStructure,ps.nodeId);
+                    break;
+                case View.AUTOFILL_HINT_CREDIT_CARD_NUMBER:
+                    cardNoNodeId = ps.nodeId;
+                    cardNoNode = nodeParser.TraverseStructure(assistStructure,ps.nodeId);
+                    break;
+                case View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_MONTH:
+                    expiryMonNodeID = ps.nodeId;
+                    expiryMonthNode = nodeParser.TraverseStructure(assistStructure,ps.nodeId);
+                    break;
+                case View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_YEAR:
+                    expiryYearNodeId = ps.nodeId;
+                    expiryYearNode = nodeParser.TraverseStructure(assistStructure,ps.nodeId);
+                    break;
+                case View.AUTOFILL_HINT_NAME:
+                    nameNodeId = ps.nodeId;
+                    nameNode = nodeParser.TraverseStructure(assistStructure,ps.nodeId);
+                    break;
+                case View.AUTOFILL_HINT_CREDIT_CARD_SECURITY_CODE:
+                    cvvNodeId = ps.nodeId;
+                    cvvNode = nodeParser.TraverseStructure(assistStructure,ps.nodeId);
+                    break;
+            }
+        }
+
         if (CompareStringBase(packageName, GenericStringBase.browser)) {
             try {
-                URI uri = new URI(passedNodes.get(0).url);
+                if (Build.VERSION.SDK_INT<Build.VERSION_CODES.P){
+                    return;
+                }
+                ViewNode random = nodeParser.TraverseStructure(assistStructure,passedNodes.get(0).nodeId);
+                String webUrl = random.getWebScheme()+"://"+random.getWebDomain();
+                URI uri = new URI(webUrl);
                 packageName = InternetDomainName.from(uri.getHost()).topPrivateDomain()
                         .toString().split(Pattern.quote("."))[0];
             } catch (URISyntaxException e) {
                 e.printStackTrace();
             }
         }
-        String formType = nodeParser.determineFormType(passedNodes);
-        for (int i = 0; i < passedNodes.size(); i++) {
-            ParsedStructure ps = passedNodes.get(i);
-            switch (ps.autofillhint) {
-                case View.AUTOFILL_HINT_USERNAME:
-                    usernameNode = ps.nodeId;
-                    break;
-                case View.AUTOFILL_HINT_EMAIL_ADDRESS:
-                    emailNode = ps.nodeId;
-                    break;
-                case View.AUTOFILL_HINT_PASSWORD:
-                    passwordNode = ps.nodeId;
-                    break;
-                case View.AUTOFILL_HINT_PHONE:
-                    phoneNode = ps.nodeId;
-                    break;
-                case View.AUTOFILL_HINT_CREDIT_CARD_NUMBER:
-                    cardNoNode = ps.nodeId;
-                    break;
-                case View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_MONTH:
-                    expiryMonthNode = ps.nodeId;
-                    expiryMonthIndex = i;
-                    break;
-                case View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_YEAR:
-                    expiryYearNode = ps.nodeId;
-                    expiryYearIndex = i;
-                    break;
-                case View.AUTOFILL_HINT_NAME:
-                    nameNode = ps.nodeId;
-                    break;
-                case View.AUTOFILL_HINT_CREDIT_CARD_SECURITY_CODE:
-                    cvvNode = ps.nodeId;
-                    break;
-            }
-        }
+
         if (formType.equals(LOGIN_FORM)){
             fillResponsePassword();
         }else if (formType.equals(CARD_FORM)){
@@ -121,7 +145,7 @@ public class FillResposeActivity extends AppCompatActivity {
         final List<CardDataClass> cardData = new ArrayList<>(dataModel.dbHelper.getAllCards());
 
         if (cardData.size() > 0) {
-            Authenticate authenticate = new Authenticate(this, R.string.decrypt);
+            final Authenticate authenticate = new Authenticate(this, R.string.decrypt);
             authenticate.setListener(new Authenticate.authCallBack() {
                 @Override
                 public void onAuthenticationSuccess(String maspass) {
@@ -140,58 +164,60 @@ public class FillResposeActivity extends AppCompatActivity {
                         }
 
                         Dataset.Builder dataSetBuilder = new Dataset.Builder();
-                        if (cardNoNode != null) {
-                            dataSetBuilder.setValue(cardNoNode,
+                        if (cardNoNodeId != null) {
+                            dataSetBuilder.setValue(cardNoNodeId,
                                     AutofillValue.forText(cD.cardNo1 + cD.cardNo2 + cD.cardNo3 + cD.cardNo4),
                                     CreatePresentation(cD.bankName, cD.cardType));
                         }
-                        if (expiryMonthNode != null && expiryYearNode == null) {
-                            dataSetBuilder.setValue(expiryMonthNode,
+                        if (expiryMonNodeID != null && expiryYearNodeId == null) {
+                            dataSetBuilder.setValue(expiryMonNodeID,
                                     AutofillValue.forText(cD.month + "/" + cD.year), CreatePresentation(cD.bankName, cD.cardType));
-                        } else if (expiryMonthNode == null && expiryYearNode != null) {
-                            dataSetBuilder.setValue(expiryYearNode,
+                        } else if (expiryMonNodeID == null && expiryYearNodeId != null) {
+                            dataSetBuilder.setValue(expiryYearNodeId,
                                     AutofillValue.forText(cD.month + "/" + cD.year), CreatePresentation(cD.bankName, cD.cardType));
                         } else {
-                            if (expiryMonthNode != null) {
-                                ArrayList<String> autoFillOptions = passedNodes.get(expiryMonthIndex).autoFillOptions;
-                                if (autoFillOptions != null && autoFillOptions.size() > 0) {
-                                    int ListIndex = 0;
-                                    for (String ao : autoFillOptions) {
+                            if (expiryMonNodeID != null) {
+                                List<CharSequence> autoFillOptions = Arrays.asList(expiryMonthNode.getAutofillOptions());
+                                if (autoFillOptions.size() > 0) {
+                                    int ListIndex=0;
+                                    for (CharSequence AO : autoFillOptions) {
+                                        String ao = AO.toString();
                                         if (ao.trim().contains(cD.month.trim()) || ao.toLowerCase().trim()
                                                 .contains(Month.of(Integer.valueOf(cD.month)).name().toLowerCase().trim())) {
                                             ListIndex = autoFillOptions.indexOf(ao);
                                         }
                                     }
-                                    dataSetBuilder.setValue(expiryMonthNode,
+                                    dataSetBuilder.setValue(expiryMonNodeID,
                                             AutofillValue.forList(ListIndex), CreatePresentation(cD.bankName, cD.cardType));
                                 } else {
-                                    dataSetBuilder.setValue(expiryMonthNode,
+                                    dataSetBuilder.setValue(expiryMonNodeID,
                                             AutofillValue.forText(cD.month), CreatePresentation(cD.bankName, cD.cardType));
                                 }
                             }
-                            if (expiryYearNode != null) {
-                                ArrayList<String> autoFillOptions = passedNodes.get(expiryYearIndex).autoFillOptions;
+                            if (expiryYearNodeId != null) {
+                                List<CharSequence> autoFillOptions = Arrays.asList(expiryYearNode.getAutofillOptions());
                                 int ListIndex = 0;
-                                if (autoFillOptions != null && autoFillOptions.size() > 0) {
-                                    for (String ao : autoFillOptions) {
+                                if (autoFillOptions.size() > 0) {
+                                    for (CharSequence AO : autoFillOptions) {
+                                        String ao = AO.toString();
                                         if (ao.trim().contains(cD.year.trim())) {
                                             ListIndex = autoFillOptions.indexOf(ao);
                                         }
                                     }
-                                    dataSetBuilder.setValue(expiryYearNode,
+                                    dataSetBuilder.setValue(expiryYearNodeId,
                                             AutofillValue.forList(ListIndex), CreatePresentation(cD.bankName, cD.cardType));
                                 } else {
-                                    dataSetBuilder.setValue(expiryYearNode,
+                                    dataSetBuilder.setValue(expiryYearNodeId,
                                             AutofillValue.forText(cD.year), CreatePresentation(cD.bankName, cD.cardType));
                                 }
                             }
                         }
-                        if (nameNode != null) {
-                            dataSetBuilder.setValue(nameNode,
+                        if (nameNodeId != null) {
+                            dataSetBuilder.setValue(nameNodeId,
                                     AutofillValue.forText(cD.name), CreatePresentation(cD.bankName, cD.cardType));
                         }
-                        if (cvvNode != null) {
-                            dataSetBuilder.setValue(cvvNode,
+                        if (cvvNodeId != null) {
+                            dataSetBuilder.setValue(cvvNodeId,
                                     AutofillValue.forText(cD.cvv), CreatePresentation(cD.bankName, cD.cardType));
                         }
                         fillResponseBuilder.addDataset(dataSetBuilder.build());
@@ -211,10 +237,10 @@ public class FillResposeActivity extends AppCompatActivity {
 
     private void fillResponsePassword() {
 
-        if (usernameNode == null && emailNode != null) {
-            usernameNode = emailNode;
-        } else if (usernameNode == null && phoneNode != null) {
-            usernameNode = phoneNode;
+        if (usernameNodeId == null && emailNodeId != null) {
+            usernameNodeId = emailNodeId;
+        } else if (usernameNodeId == null && phoneNodeId != null) {
+            usernameNodeId = phoneNodeId;
         }
         List<PasswordDataClass> passwordData = new ArrayList<>(dataModel.dbHelper.getAllPassword());
         final List<PasswordDataClass> validPassword = new ArrayList<>();
@@ -224,7 +250,7 @@ public class FillResposeActivity extends AppCompatActivity {
             }
         }
 
-        if (usernameNode != null && passwordNode != null) {
+        if (usernameNodeId != null && passwordNodeId != null) {
             if (validPassword.size() > 0) {
                 Authenticate authenticate = new Authenticate(this, R.string.decrypt);
                 authenticate.setListener(new Authenticate.authCallBack() {
@@ -238,16 +264,20 @@ public class FillResposeActivity extends AppCompatActivity {
                                 e.printStackTrace();
                                 finishAndRemoveTask();
                             }
+
                             fillResponseBuilder.addDataset(new Dataset.Builder()
-                                    .setValue(usernameNode,
+                                    .setValue(usernameNodeId,
                                             AutofillValue.forText(pd.username), CreatePresentation(pd.serviceName, pd.username))
-                                    .setValue(passwordNode,
+                                    .setValue(passwordNodeId,
                                             AutofillValue.forText(pd.password), CreatePresentation(pd.serviceName, pd.username))
                                     .build());
                         }
+                        Bundle clientState = new Bundle();
+                        clientState.putParcelable("userNameId", usernameNodeId);
+                        clientState.putParcelable("passwordId", passwordNodeId);
                         fillResponseBuilder.setSaveInfo(new SaveInfo.Builder(
                                 SaveInfo.SAVE_DATA_TYPE_USERNAME | SaveInfo.SAVE_DATA_TYPE_PASSWORD,
-                                new AutofillId[]{usernameNode, passwordNode}).build());
+                                new AutofillId[]{usernameNodeId, passwordNodeId}).build()).setClientState(clientState);
                         setFinalResult();
                     }
 
@@ -258,12 +288,15 @@ public class FillResposeActivity extends AppCompatActivity {
                 });
 
             } else {
+                Bundle clientState = new Bundle();
+                clientState.putParcelable("userNameId", usernameNodeId);
+                clientState.putParcelable("passwordId", passwordNodeId);
                 fillResponseBuilder.setSaveInfo(new SaveInfo.Builder(
                         SaveInfo.SAVE_DATA_TYPE_USERNAME | SaveInfo.SAVE_DATA_TYPE_PASSWORD,
-                        new AutofillId[]{usernameNode, passwordNode}).build());
+                        new AutofillId[]{usernameNodeId, passwordNodeId}).build()).setClientState(clientState);
                 setFinalResult();
             }
-        } else if (passwordNode != null) {
+        } else if (passwordNodeId != null) {
             if (validPassword.size() > 0) {
                 Authenticate authenticate = new Authenticate(this, R.string.decrypt);
                 authenticate.setListener(new Authenticate.authCallBack() {
@@ -278,13 +311,31 @@ public class FillResposeActivity extends AppCompatActivity {
                                 finishAndRemoveTask();
                             }
                             fillResponseBuilder.addDataset(new Dataset.Builder()
-                                    .setValue(passwordNode,
+                                    .setValue(passwordNodeId,
                                             AutofillValue.forText(pd.password), CreatePresentation(pd.serviceName, pd.username))
                                     .build());
                         }
-                        fillResponseBuilder.setSaveInfo(new SaveInfo.Builder(SaveInfo.SAVE_DATA_TYPE_PASSWORD,
-                                new AutofillId[]{passwordNode}).build());
-                        setFinalResult();
+                        Bundle clientState = new Bundle();
+                        clientState = fillRequest.getClientState();
+                        assert clientState != null;
+                        usernameNodeId = clientState.getParcelable("userNameId");
+                        clientState.putParcelable("passwordId", passwordNodeId);
+                        if (usernameNodeId!=null){
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                                fillResponseBuilder.setSaveInfo(new SaveInfo.Builder(
+                                        SaveInfo.SAVE_DATA_TYPE_USERNAME | SaveInfo.SAVE_DATA_TYPE_PASSWORD,
+                                        new AutofillId[]{usernameNodeId, passwordNodeId}).setTriggerId(passwordNodeId).build())
+                                        .setClientState(clientState);
+                            }else {
+                                fillResponseBuilder.setSaveInfo(new SaveInfo.Builder(
+                                        SaveInfo.SAVE_DATA_TYPE_USERNAME | SaveInfo.SAVE_DATA_TYPE_PASSWORD,
+                                        new AutofillId[]{usernameNodeId, passwordNodeId}).setFlags(SaveInfo.FLAG_SAVE_ON_ALL_VIEWS_INVISIBLE).build())
+                                        .setClientState(clientState);
+                            }
+                        }else {
+                            fillResponseBuilder.setSaveInfo(new SaveInfo.Builder(SaveInfo.SAVE_DATA_TYPE_PASSWORD,
+                                    new AutofillId[]{passwordNodeId}).build()).setClientState(clientState);
+                        }
                     }
 
                     @Override
@@ -293,11 +344,31 @@ public class FillResposeActivity extends AppCompatActivity {
                     }
                 });
             } else {
-                fillResponseBuilder.setSaveInfo(new SaveInfo.Builder(SaveInfo.SAVE_DATA_TYPE_PASSWORD,
-                        new AutofillId[]{passwordNode}).build());
+                Bundle clientState = new Bundle();
+                clientState = fillRequest.getClientState();
+                assert clientState != null;
+                usernameNodeId = clientState.getParcelable("userNameId");
+                clientState.putParcelable("passwordId", passwordNodeId);
+                if (usernameNodeId!=null){
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                        fillResponseBuilder.setSaveInfo(new SaveInfo.Builder(
+                                SaveInfo.SAVE_DATA_TYPE_USERNAME | SaveInfo.SAVE_DATA_TYPE_PASSWORD,
+                                new AutofillId[]{usernameNodeId, passwordNodeId}).setTriggerId(passwordNodeId).build())
+                                .setClientState(clientState);
+                    }else {
+                        fillResponseBuilder.setSaveInfo(new SaveInfo.Builder(
+                                SaveInfo.SAVE_DATA_TYPE_USERNAME | SaveInfo.SAVE_DATA_TYPE_PASSWORD,
+                                new AutofillId[]{usernameNodeId, passwordNodeId}).setFlags(SaveInfo.FLAG_SAVE_ON_ALL_VIEWS_INVISIBLE).build())
+                                .setClientState(clientState);
+                    }
+                }else {
+                    fillResponseBuilder.setSaveInfo(new SaveInfo.Builder(SaveInfo.SAVE_DATA_TYPE_PASSWORD,
+                            new AutofillId[]{passwordNodeId}).build()).setClientState(clientState);
+                }
+
                 setFinalResult();
             }
-        } else if (usernameNode != null) {
+        } else if (usernameNodeId != null) {
             if (validPassword.size() > 0) {
                 Authenticate authenticate = new Authenticate(this, R.string.decrypt);
                 authenticate.setListener(new Authenticate.authCallBack() {
@@ -312,11 +383,13 @@ public class FillResposeActivity extends AppCompatActivity {
                                 finishAndRemoveTask();
                             }
                             fillResponseBuilder.addDataset(new Dataset.Builder()
-                                    .setValue(usernameNode, AutofillValue.forText(pd.username),
+                                    .setValue(usernameNodeId, AutofillValue.forText(pd.username),
                                             CreatePresentation(pd.serviceName, pd.username)).build());
                         }
+                        Bundle clientState = new Bundle();
+                        clientState.putParcelable("userNameId", usernameNodeId);
                         fillResponseBuilder.setSaveInfo(new SaveInfo.Builder(SaveInfo.SAVE_DATA_TYPE_USERNAME,
-                                new AutofillId[]{usernameNode}).build());
+                                new AutofillId[]{usernameNodeId}).build()).setClientState(clientState);
                         setFinalResult();
                     }
 
@@ -326,8 +399,10 @@ public class FillResposeActivity extends AppCompatActivity {
                     }
                 });
             } else {
+                Bundle clientState = new Bundle();
+                clientState.putParcelable("userNameId", usernameNodeId);
                 fillResponseBuilder.setSaveInfo(new SaveInfo.Builder(SaveInfo.SAVE_DATA_TYPE_USERNAME,
-                        new AutofillId[]{usernameNode}).build());
+                        new AutofillId[]{usernameNodeId}).build()).setClientState(clientState);
                 setFinalResult();
             }
         }
