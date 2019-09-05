@@ -31,7 +31,7 @@
         </activity>
 
         <service
-            android:name=".util.AutofillServiceExtend"
+            android:name=".util.AutoFillServiceExtend"
             android:label="Autofill"
             android:permission="android.permission.BIND_AUTOFILL_SERVICE">
             <intent-filter>

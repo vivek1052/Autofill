@@ -7,11 +7,13 @@ import android.os.Build;
 import android.os.Bundle;
 import android.service.autofill.Dataset;
 import android.service.autofill.FillContext;
+import android.service.autofill.FillEventHistory;
 import android.service.autofill.FillRequest;
 import android.service.autofill.FillResponse;
 import android.service.autofill.SaveInfo;
 import android.view.View;
 import android.view.autofill.AutofillId;
+import android.view.autofill.AutofillManager;
 import android.view.autofill.AutofillValue;
 import android.widget.RemoteViews;
 
@@ -53,6 +55,7 @@ public class FillResposeActivity extends AppCompatActivity {
     FillRequest fillRequest;
     FillResponse.Builder fillResponseBuilder;
     NodeParser nodeParser = new NodeParser();
+    Boolean isBrowser = false;
     private static final String LOGIN_FORM = "LOGIN_FORM" ;
     private static final String CARD_FORM = "CARD_FORM" ;
 
@@ -78,11 +81,9 @@ public class FillResposeActivity extends AppCompatActivity {
             switch (ps.autofillhint) {
                 case View.AUTOFILL_HINT_USERNAME:
                     usernameNodeId = ps.nodeId;
-                    usernameNode = nodeParser.TraverseStructure(assistStructure,ps.nodeId);
                     break;
                 case View.AUTOFILL_HINT_EMAIL_ADDRESS:
                     emailNodeId = ps.nodeId;
-                    emailNode = nodeParser.TraverseStructure(assistStructure,ps.nodeId);
                     break;
                 case View.AUTOFILL_HINT_PASSWORD:
                     passwordNodeId = ps.nodeId;
@@ -112,14 +113,21 @@ public class FillResposeActivity extends AppCompatActivity {
                     cvvNodeId = ps.nodeId;
                     cvvNode = nodeParser.TraverseStructure(assistStructure,ps.nodeId);
                     break;
+                case "UNKNOWN":
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                        fillResponseBuilder.setFieldClassificationIds(ps.nodeId);
+                    }
             }
+
         }
 
         if (CompareStringBase(packageName, GenericStringBase.browser)) {
             try {
                 if (Build.VERSION.SDK_INT<Build.VERSION_CODES.P){
+                    isBrowser = false;
                     return;
                 }
+                isBrowser = true;
                 ViewNode random = nodeParser.TraverseStructure(assistStructure,passedNodes.get(0).nodeId);
                 String webUrl = random.getWebScheme()+"://"+random.getWebDomain();
                 URI uri = new URI(webUrl);
@@ -275,9 +283,18 @@ public class FillResposeActivity extends AppCompatActivity {
                         Bundle clientState = new Bundle();
                         clientState.putParcelable("userNameId", usernameNodeId);
                         clientState.putParcelable("passwordId", passwordNodeId);
-                        fillResponseBuilder.setSaveInfo(new SaveInfo.Builder(
+                        SaveInfo.Builder saveInfoBuilder = new SaveInfo.Builder(
                                 SaveInfo.SAVE_DATA_TYPE_USERNAME | SaveInfo.SAVE_DATA_TYPE_PASSWORD,
-                                new AutofillId[]{usernameNodeId, passwordNodeId}).build()).setClientState(clientState);
+                                new AutofillId[]{usernameNodeId, passwordNodeId});
+                        if (isBrowser){
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                                saveInfoBuilder.setTriggerId(passwordNodeId)
+                                        .setFlags(SaveInfo.FLAG_SAVE_ON_ALL_VIEWS_INVISIBLE);
+                            }else {
+                                saveInfoBuilder.setFlags(SaveInfo.FLAG_SAVE_ON_ALL_VIEWS_INVISIBLE);
+                            }
+                        }
+                        fillResponseBuilder.setSaveInfo(saveInfoBuilder.build()).setClientState(clientState);
                         setFinalResult();
                     }
 
@@ -291,9 +308,18 @@ public class FillResposeActivity extends AppCompatActivity {
                 Bundle clientState = new Bundle();
                 clientState.putParcelable("userNameId", usernameNodeId);
                 clientState.putParcelable("passwordId", passwordNodeId);
-                fillResponseBuilder.setSaveInfo(new SaveInfo.Builder(
+                SaveInfo.Builder saveInfoBuilder = new SaveInfo.Builder(
                         SaveInfo.SAVE_DATA_TYPE_USERNAME | SaveInfo.SAVE_DATA_TYPE_PASSWORD,
-                        new AutofillId[]{usernameNodeId, passwordNodeId}).build()).setClientState(clientState);
+                        new AutofillId[]{usernameNodeId, passwordNodeId});
+                if (isBrowser){
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                        saveInfoBuilder.setTriggerId(passwordNodeId)
+                                .setFlags(SaveInfo.FLAG_SAVE_ON_ALL_VIEWS_INVISIBLE);
+                    }else {
+                        saveInfoBuilder.setFlags(SaveInfo.FLAG_SAVE_ON_ALL_VIEWS_INVISIBLE);
+                    }
+                }
+                fillResponseBuilder.setSaveInfo(saveInfoBuilder.build()).setClientState(clientState);
                 setFinalResult();
             }
         } else if (passwordNodeId != null) {
@@ -324,7 +350,8 @@ public class FillResposeActivity extends AppCompatActivity {
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                                 fillResponseBuilder.setSaveInfo(new SaveInfo.Builder(
                                         SaveInfo.SAVE_DATA_TYPE_USERNAME | SaveInfo.SAVE_DATA_TYPE_PASSWORD,
-                                        new AutofillId[]{usernameNodeId, passwordNodeId}).setTriggerId(passwordNodeId).build())
+                                        new AutofillId[]{usernameNodeId, passwordNodeId}).setTriggerId(passwordNodeId)
+                                        .setFlags(SaveInfo.FLAG_SAVE_ON_ALL_VIEWS_INVISIBLE).build())
                                         .setClientState(clientState);
                             }else {
                                 fillResponseBuilder.setSaveInfo(new SaveInfo.Builder(
@@ -336,6 +363,7 @@ public class FillResposeActivity extends AppCompatActivity {
                             fillResponseBuilder.setSaveInfo(new SaveInfo.Builder(SaveInfo.SAVE_DATA_TYPE_PASSWORD,
                                     new AutofillId[]{passwordNodeId}).build()).setClientState(clientState);
                         }
+                        setFinalResult();
                     }
 
                     @Override
@@ -353,7 +381,8 @@ public class FillResposeActivity extends AppCompatActivity {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                         fillResponseBuilder.setSaveInfo(new SaveInfo.Builder(
                                 SaveInfo.SAVE_DATA_TYPE_USERNAME | SaveInfo.SAVE_DATA_TYPE_PASSWORD,
-                                new AutofillId[]{usernameNodeId, passwordNodeId}).setTriggerId(passwordNodeId).build())
+                                new AutofillId[]{usernameNodeId, passwordNodeId}).setTriggerId(passwordNodeId)
+                                .setFlags(SaveInfo.FLAG_SAVE_ON_ALL_VIEWS_INVISIBLE).build())
                                 .setClientState(clientState);
                     }else {
                         fillResponseBuilder.setSaveInfo(new SaveInfo.Builder(
@@ -365,7 +394,6 @@ public class FillResposeActivity extends AppCompatActivity {
                     fillResponseBuilder.setSaveInfo(new SaveInfo.Builder(SaveInfo.SAVE_DATA_TYPE_PASSWORD,
                             new AutofillId[]{passwordNodeId}).build()).setClientState(clientState);
                 }
-
                 setFinalResult();
             }
         } else if (usernameNodeId != null) {

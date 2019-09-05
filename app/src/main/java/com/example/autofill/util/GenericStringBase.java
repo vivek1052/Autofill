@@ -12,6 +12,7 @@ public class GenericStringBase {
     public static String[] expiryMonth = {"month","mm"};
     public static String[] expiryYear = {"year","yy"};
     public static String[] cvv = {"cvv"};
+    public static String[] restricted = {"otp","search","INCOMPATIBLE_TYPE"};
     public static String[] login_form = {View.AUTOFILL_HINT_USERNAME,View.AUTOFILL_HINT_PASSWORD,
             View.AUTOFILL_HINT_EMAIL_ADDRESS,View.AUTOFILL_HINT_PHONE};
     public static String[] card_form = {View.AUTOFILL_HINT_CREDIT_CARD_NUMBER,View.AUTOFILL_HINT_NAME,

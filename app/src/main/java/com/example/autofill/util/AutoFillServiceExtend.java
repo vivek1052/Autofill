@@ -1,6 +1,7 @@
 package com.example.autofill.util;
 
 import android.app.PendingIntent;
+import android.app.Service;
 import android.app.assist.AssistStructure;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -8,6 +9,7 @@ import android.os.Bundle;
 import android.os.CancellationSignal;
 import android.service.autofill.AutofillService;
 import android.service.autofill.FillCallback;
+import android.service.autofill.FillEventHistory;
 import android.service.autofill.FillRequest;
 import android.service.autofill.FillContext;
 import android.service.autofill.FillResponse;
@@ -17,6 +19,7 @@ import android.text.InputType;
 import android.util.Pair;
 import android.view.View;
 import android.view.autofill.AutofillId;
+import android.view.autofill.AutofillManager;
 import android.widget.RemoteViews;
 
 import com.example.autofill.FillResposeActivity;
@@ -27,7 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class AutofillServiceExtend extends AutofillService {
+public class AutoFillServiceExtend extends AutofillService {
 
     NodeParser nodeParser = new NodeParser();
 
@@ -86,4 +89,5 @@ public class AutofillServiceExtend extends AutofillService {
         this.startActivity(saveIntent);
         saveCallback.onSuccess();
     }
+
 }
