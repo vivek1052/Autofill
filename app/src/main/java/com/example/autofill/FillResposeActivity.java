@@ -291,7 +291,7 @@ public class FillResposeActivity extends AppCompatActivity {
                                         String ao = AO.toString();
                                         if (ao.trim().contains(cD.month.trim()) || ao.toLowerCase().trim()
                                                 .contains(Month.of(Integer.valueOf(cD.month)).name().toLowerCase().trim())) {
-                                            ListIndex = autoFillOptions.indexOf(ao);
+                                            ListIndex = autoFillOptions.indexOf(AO);
                                             break;
                                         }
                                     }
@@ -311,7 +311,7 @@ public class FillResposeActivity extends AppCompatActivity {
                                     for (CharSequence AO : autoFillOptions) {
                                         String ao = AO.toString();
                                         if (ao.trim().contains(cD.year.trim())) {
-                                            ListIndex = autoFillOptions.indexOf(ao);
+                                            ListIndex = autoFillOptions.indexOf(AO);
                                             break;
                                         }
                                     }
