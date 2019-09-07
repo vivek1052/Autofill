@@ -40,7 +40,7 @@ public class AutoFillServiceExtend extends AutofillService {
         AssistStructure structure = context.get(context.size() - 1).getStructure();
         String packageName = structure.getActivityComponent().getPackageName();
 
-        if (nodeParser.CompareStringBase(packageName, GenericStringBase.restrictedPackages)) {
+        if (CompareStringBase(packageName, GenericStringBase.restrictedPackages)) {
             return;
         }
 
@@ -88,6 +88,18 @@ public class AutoFillServiceExtend extends AutofillService {
         saveIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         this.startActivity(saveIntent);
         saveCallback.onSuccess();
+    }
+
+    public boolean CompareStringBase(String source, String[] target) {
+        if (source == null) {
+            return false;
+        }
+        for (int i = 0; i < target.length; i++) {
+            if (source.toLowerCase().trim().contains(target[i].toLowerCase().trim())) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

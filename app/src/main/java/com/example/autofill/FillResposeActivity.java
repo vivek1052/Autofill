@@ -185,8 +185,9 @@ public class FillResposeActivity extends AppCompatActivity {
                                     AutofillValue.forText(cD.month + "/" + cD.year), CreatePresentation(cD.bankName, cD.cardType));
                         } else {
                             if (expiryMonNodeID != null) {
-                                List<CharSequence> autoFillOptions = Arrays.asList(expiryMonthNode.getAutofillOptions());
-                                if (autoFillOptions.size() > 0) {
+                                if (expiryMonthNode.getAutofillOptions()!=null&&
+                                        Arrays.asList(expiryMonthNode.getAutofillOptions()).size()>0) {
+                                    List<CharSequence> autoFillOptions = Arrays.asList(expiryMonthNode.getAutofillOptions());
                                     int ListIndex=0;
                                     for (CharSequence AO : autoFillOptions) {
                                         String ao = AO.toString();
@@ -203,9 +204,10 @@ public class FillResposeActivity extends AppCompatActivity {
                                 }
                             }
                             if (expiryYearNodeId != null) {
-                                List<CharSequence> autoFillOptions = Arrays.asList(expiryYearNode.getAutofillOptions());
-                                int ListIndex = 0;
-                                if (autoFillOptions.size() > 0) {
+                                if (expiryYearNode.getAutofillOptions()!=null&&
+                                        Arrays.asList(expiryYearNode.getAutofillOptions()).size()>0) {
+                                    List<CharSequence> autoFillOptions = Arrays.asList(expiryYearNode.getAutofillOptions());
+                                    int ListIndex = 0;
                                     for (CharSequence AO : autoFillOptions) {
                                         String ao = AO.toString();
                                         if (ao.trim().contains(cD.year.trim())) {

@@ -40,8 +40,25 @@ public class DataModel {
     }
 
     public void addNewPassword(PasswordDataClass newPassword){
-       dbHelper.insertPassword(newPassword.serviceName, newPassword.subText, newPassword.username,
-                newPassword.password);
+       List<PasswordDataClass> existingPass =  dbHelper.getPassword(newPassword.subText);
+       if (existingPass.size()>0){
+           Boolean passUpdated = false;
+           for (PasswordDataClass ep:existingPass){
+                if (ep.username.equals(newPassword.username)){
+                    dbHelper.updatePassword(ep.id,newPassword.serviceName,newPassword.subText,
+                            newPassword.username,newPassword.password);
+                    passUpdated = true;
+                    break;
+                }
+           }
+           if (!passUpdated){
+               dbHelper.insertPassword(newPassword.serviceName, newPassword.subText, newPassword.username,
+                       newPassword.password);
+           }
+       }else {
+           dbHelper.insertPassword(newPassword.serviceName, newPassword.subText, newPassword.username,
+                   newPassword.password);
+       }
     }
 
     public void addNewCard(CardDataClass cardData){

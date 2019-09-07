@@ -36,12 +36,13 @@ public class PasswordFragment extends Fragment implements DataUpdateCallback {
     MainActivity mainActivity;
     PasswordAdapter adapter;
     List<PasswordDataClass> passwordData;
+    ListView listView;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_password, container, false);
-        ListView listView = view.findViewById(R.id.password_ListView);
+        listView = view.findViewById(R.id.password_ListView);
         passwordData = mainActivity.dataModel.passwordData;
         adapter = new PasswordAdapter(mainActivity,passwordData);
         listView.setAdapter(adapter);

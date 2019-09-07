@@ -57,6 +57,32 @@ public class DBHelper extends SQLiteOpenHelper {
         contentValues.put(Contract.Password.PASSWORD,password);
         sqLiteDatabase.insert(Contract.Password.TABLE_NAME,null, contentValues);
     }
+    public void updatePassword(int id,String service,String subtext, String username, String password){
+        SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(Contract.Password.SERVICE,service);
+        contentValues.put(Contract.Password.SUBTEXT,subtext);
+        contentValues.put(Contract.Password.USERNAME,username);
+        contentValues.put(Contract.Password.PASSWORD,password);
+        sqLiteDatabase.update(Contract.Password.TABLE_NAME,contentValues,
+                Contract.Password.ID+" = ?", new String[]{String.valueOf(id)});
+    }
+    public List<PasswordDataClass> getPassword(String packageName){
+        List<PasswordDataClass> passwordData = new ArrayList<PasswordDataClass>();
+        SQLiteDatabase sqLiteDatabase = this.getReadableDatabase();
+        Cursor res = sqLiteDatabase.rawQuery("select * from "+Contract.Password.TABLE_NAME+
+                " WHERE "+Contract.Password.SUBTEXT+" = ?",new String[]{packageName});
+        res.moveToFirst();
+        while (res.isAfterLast() == false){
+            passwordData.add(new PasswordDataClass(res.getInt(res.getColumnIndex(Contract.Password.ID)),
+                    res.getString(res.getColumnIndex(Contract.Password.SERVICE)),
+                    res.getString(res.getColumnIndex(Contract.Password.SUBTEXT)),
+                    res.getString(res.getColumnIndex(Contract.Password.USERNAME)),
+                    res.getString(res.getColumnIndex(Contract.Password.PASSWORD))));
+            res.moveToNext();
+        }
+        return passwordData;
+    }
 
     public List<PasswordDataClass> getAllPassword(){
         List<PasswordDataClass> passwordData = new ArrayList<PasswordDataClass>();

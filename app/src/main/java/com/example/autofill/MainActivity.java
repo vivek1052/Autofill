@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.TextUtils;
 
 import com.example.autofill.util.CipherClass;
 import com.example.autofill.util.DataModel;
@@ -24,8 +25,11 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 import androidx.preference.PreferenceManager;
 
+
 import java.util.HashSet;
 import java.util.Set;
+
+
 
 public class MainActivity extends AppCompatActivity {
 

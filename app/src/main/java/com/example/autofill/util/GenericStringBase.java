@@ -7,12 +7,17 @@ public class GenericStringBase {
     public static String[] password = {"password", "pwd"};
     public static String[] phone = {"phone","mobile"};
     public static String[] email = {"email"};
-    public static String[] cardNo = {"cardno","card number","card no"};
+    public static String[] cardNo = {"cardno","card number","card no","cardnum"};
     public static String[] holderName = {"name", "holder"};
     public static String[] expiryMonth = {"month","mm"};
     public static String[] expiryYear = {"year","yy"};
     public static String[] cvv = {"cvv"};
-    public static String[] restricted = {"otp","search","INCOMPATIBLE_TYPE"};
+    public static String[] postal = {"pincode","postal code","postalcode"};
+    public static String[] flatno = {"flat no","House no","h. no","flat"};
+    public static String[] city={"city"};
+    public static String[] state={"state"};
+    public static String[] restricted = {"otp","search","INCOMPATIBLE_TYPE","reply","comment","dummy",
+    "amount"};
     public static String[] login_form = {View.AUTOFILL_HINT_USERNAME,View.AUTOFILL_HINT_PASSWORD,
             View.AUTOFILL_HINT_EMAIL_ADDRESS,View.AUTOFILL_HINT_PHONE};
     public static String[] card_form = {View.AUTOFILL_HINT_CREDIT_CARD_NUMBER,View.AUTOFILL_HINT_NAME,

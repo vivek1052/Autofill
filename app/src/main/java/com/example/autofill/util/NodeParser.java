@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class NodeParser {
@@ -37,6 +39,8 @@ public class NodeParser {
         stringBaseList.add(new stringBasePair(GenericStringBase.holderName, View.AUTOFILL_HINT_NAME));
         stringBaseList.add(new stringBasePair(GenericStringBase.cvv, View.AUTOFILL_HINT_CREDIT_CARD_SECURITY_CODE));
         stringBaseList.add(new stringBasePair(GenericStringBase.cardNo, View.AUTOFILL_HINT_CREDIT_CARD_NUMBER));
+        stringBaseList.add(new stringBasePair(GenericStringBase.postal, View.AUTOFILL_HINT_POSTAL_CODE));
+        stringBaseList.add(new stringBasePair(GenericStringBase.city, "CITY"));
         ArrayList<ParsedStructure> passedNodes = new ArrayList<>();
         int nodes = structure.getWindowNodeCount();
 
@@ -146,13 +150,12 @@ public class NodeParser {
     }
 
     private String buildSearchQuery(ViewNode viewNode) {
-        String searchQuery = viewNode.getIdEntry() + " " + viewNode.getHint() + " " +
-                viewNode.getContentDescription();
+        String searchQuery = viewNode.getIdEntry()+" "+viewNode.getHint()+" "+viewNode.getContentDescription();
         if (viewNode.getHtmlInfo() != null) {
             List<Pair<String, String>> HtmlValues = viewNode.getHtmlInfo().getAttributes();
             for (Pair<String, String> hv : HtmlValues) {
                 if (hv.first.toLowerCase().trim().contains("label")) {
-                    searchQuery = searchQuery + " " + hv.second;
+                        searchQuery = searchQuery + " " + hv.second;
                 } else if (hv.first.toLowerCase().trim().contains("hints")) {
                     searchQuery = searchQuery + " " + hv.second;
                 } else if (hv.first.toLowerCase().trim().contains("name")) {
@@ -164,7 +167,25 @@ public class NodeParser {
                 }
             }
         }
-        return searchQuery.replaceAll("null", "").trim();
+        searchQuery = searchQuery.toLowerCase().trim();
+        searchQuery = searchQuery.replaceAll("null", "").trim();
+        String specialChar = "[^a-zA-Z0-9]";
+        Pattern p = Pattern.compile(specialChar);
+        Matcher m = p.matcher(searchQuery);
+        while(m.find())
+        {
+            String s= m.group();
+            searchQuery = searchQuery.replaceAll("\\"+s, " ");
+        }
+
+        String duplicatePattern = "\\b([\\w\\s']+) \\1\\b";
+        Pattern dupPatter = Pattern.compile(duplicatePattern);
+        Matcher dupMatcher = dupPatter.matcher(searchQuery);
+        if (dupMatcher.matches()) {
+            return dupMatcher.group(1);
+        } else {
+            return searchQuery;
+        }
     }
 
     public boolean CompareStringBase(String source, String[] target) {
