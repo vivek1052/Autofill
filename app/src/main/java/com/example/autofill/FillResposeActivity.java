@@ -11,6 +11,7 @@ import android.service.autofill.FillEventHistory;
 import android.service.autofill.FillRequest;
 import android.service.autofill.FillResponse;
 import android.service.autofill.SaveInfo;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.autofill.AutofillId;
 import android.view.autofill.AutofillManager;
@@ -19,6 +20,7 @@ import android.widget.RemoteViews;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.autofill.dataClass.AddressDataClass;
 import com.example.autofill.dataClass.CardDataClass;
 import com.example.autofill.dataClass.ParsedStructure;
 import com.example.autofill.dataClass.PasswordDataClass;
@@ -48,16 +50,26 @@ import static android.view.autofill.AutofillManager.EXTRA_AUTHENTICATION_RESULT;
 public class FillResposeActivity extends AppCompatActivity {
 
     AutofillId usernameNodeId, passwordNodeId, phoneNodeId, emailNodeId, cardNoNodeId, expiryMonNodeID, expiryYearNodeId, nameNodeId, cvvNodeId;
-    ViewNode usernameNode, passwordNode, phoneNode, emailNode, cardNoNode, expiryMonthNode, expiryYearNode, nameNode, cvvNode;
     String packageName;
     DataModel dataModel;
     CipherClass cipherClass;
     FillRequest fillRequest;
     FillResponse.Builder fillResponseBuilder;
     NodeParser nodeParser = new NodeParser();
+    ArrayList<ParsedStructure>  passedNodes;
+    AssistStructure assistStructure;
     Boolean isBrowser = false;
     private static final String LOGIN_FORM = "LOGIN_FORM" ;
     private static final String CARD_FORM = "CARD_FORM" ;
+    private static final String ADDRESS_FORM = "ADDRESS_FORM";
+    private static final String HINT_CITY = "CITY";
+    private static final String HINT_STATE = "STATE";
+    private static final String HINT_LOCALITY ="LOCALITY" ;
+    private static final String HINT_FLAT_NO = "FLAT_NO" ;
+    private static final String HINT_BUILDING_NAME = "BUILDING_NAME";
+    private static final String HINT_STREET_NO = "STREET_NO";
+    private static final String HINT_STREET_NAME = "STREET_NAME";
+    private static final String HINT_COUNTRY = "COUNTRY" ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,55 +83,10 @@ public class FillResposeActivity extends AppCompatActivity {
         Bundle fillReqBundle = intent.getBundleExtra("fillReqBundle");
         fillRequest = fillReqBundle.getParcelable("FillRequest");
         String formType = fillReqBundle.getString("FormType");
-        ArrayList<ParsedStructure>  passedNodes = fillReqBundle.getParcelableArrayList("PassedNodes");
+        passedNodes = fillReqBundle.getParcelableArrayList("PassedNodes");
         List<FillContext> fillContexts = fillRequest.getFillContexts();
-        AssistStructure assistStructure = fillContexts.get(fillContexts.size()-1).getStructure();
+        assistStructure = fillContexts.get(fillContexts.size()-1).getStructure();
         packageName = assistStructure.getActivityComponent().getPackageName();
-
-        for (int i = 0; i < passedNodes.size(); i++) {
-            ParsedStructure ps = passedNodes.get(i);
-            switch (ps.autofillhint) {
-                case View.AUTOFILL_HINT_USERNAME:
-                    usernameNodeId = ps.nodeId;
-                    break;
-                case View.AUTOFILL_HINT_EMAIL_ADDRESS:
-                    emailNodeId = ps.nodeId;
-                    break;
-                case View.AUTOFILL_HINT_PASSWORD:
-                    passwordNodeId = ps.nodeId;
-                    passwordNode = nodeParser.TraverseStructure(assistStructure,ps.nodeId);
-                    break;
-                case View.AUTOFILL_HINT_PHONE:
-                    phoneNodeId = ps.nodeId;
-                    phoneNode = nodeParser.TraverseStructure(assistStructure,ps.nodeId);
-                    break;
-                case View.AUTOFILL_HINT_CREDIT_CARD_NUMBER:
-                    cardNoNodeId = ps.nodeId;
-                    cardNoNode = nodeParser.TraverseStructure(assistStructure,ps.nodeId);
-                    break;
-                case View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_MONTH:
-                    expiryMonNodeID = ps.nodeId;
-                    expiryMonthNode = nodeParser.TraverseStructure(assistStructure,ps.nodeId);
-                    break;
-                case View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_YEAR:
-                    expiryYearNodeId = ps.nodeId;
-                    expiryYearNode = nodeParser.TraverseStructure(assistStructure,ps.nodeId);
-                    break;
-                case View.AUTOFILL_HINT_NAME:
-                    nameNodeId = ps.nodeId;
-                    nameNode = nodeParser.TraverseStructure(assistStructure,ps.nodeId);
-                    break;
-                case View.AUTOFILL_HINT_CREDIT_CARD_SECURITY_CODE:
-                    cvvNodeId = ps.nodeId;
-                    cvvNode = nodeParser.TraverseStructure(assistStructure,ps.nodeId);
-                    break;
-                case "UNKNOWN":
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                        fillResponseBuilder.setFieldClassificationIds(ps.nodeId);
-                    }
-            }
-
-        }
 
         if (CompareStringBase(packageName, GenericStringBase.browser)) {
             try {
@@ -140,16 +107,146 @@ public class FillResposeActivity extends AppCompatActivity {
 
         if (formType.equals(LOGIN_FORM)){
             fillResponsePassword();
-        }else if (formType.equals(CARD_FORM)){
+        }else if (formType.equals(CARD_FORM)) {
             fillResponseCard();
+        }else if (formType.equals(ADDRESS_FORM)){
+            fillResponseAddress();
         }else {
             finishAndRemoveTask();
         }
 
     }
 
+    private void fillResponseAddress() {
+        List<AddressDataClass> addressData = dataModel.dbHelper.getAllAddress();
+        if (addressData.size()>0){
+            for (AddressDataClass ad: addressData){
+                Dataset.Builder dataSetBuilder = new Dataset.Builder();
+                for (ParsedStructure ps:passedNodes){
+                    ViewNode currentNode = nodeParser.TraverseStructure(assistStructure,ps.nodeId);
+                    if (currentNode.getAutofillOptions()!=null&&currentNode.getAutofillOptions().length>0){
+                        List<CharSequence> autofillOptions = Arrays.asList(currentNode.getAutofillOptions());
+                        String addressLine = getAddressLine(ps,ad,autofillOptions);
+                        if (addressLine!=null){
+                            dataSetBuilder.setValue(ps.nodeId,
+                                    AutofillValue.forList(Integer.valueOf(addressLine)),CreatePresentation(ad.name,
+                                            ad.locality+" "+ad.city));
+                        }
+                    }else {
+                        String addressLine = getAddressLine(ps,ad,new ArrayList<CharSequence>());
+                        if (addressLine!=null){
+                            dataSetBuilder.setValue(ps.nodeId,
+                                    AutofillValue.forText(addressLine),CreatePresentation(ad.name,
+                                            ad.locality+" "+ad.city));
+                        }
+                    }
+                }
+                fillResponseBuilder.addDataset(dataSetBuilder.build());
+            }
+            setFinalResult();
+        }else {
+            finishAndRemoveTask();
+        }
+    }
+
+    private String getAddressLine(ParsedStructure ps, AddressDataClass ad, List<CharSequence> autofillOptions) {
+        String addressLine = "";
+        String separator = "";
+        for (ParsedStructure pn:passedNodes){
+            if (pn.nodeId.equals(ps.nodeId)){
+                switch (pn.autofillhint){
+                    case View.AUTOFILL_HINT_NAME:
+                        addressLine = addressLine+separator+ad.name;
+                        break;
+                    case HINT_FLAT_NO:
+                        addressLine = addressLine+separator+ad.flatNo;
+                        break;
+                    case HINT_BUILDING_NAME:
+                        addressLine = addressLine+separator+ad.buildingName;
+                        break;
+                    case HINT_STREET_NO:
+                        addressLine = addressLine+separator+ad.streetNo;
+                        break;
+                    case HINT_STREET_NAME:
+                        addressLine = addressLine+separator+ad.streetName;
+                        break;
+                    case HINT_LOCALITY:
+                        addressLine = addressLine+separator+ad.locality;
+                        break;
+                    case HINT_CITY:
+                        addressLine = addressLine+separator+ad.city;
+                        break;
+                    case HINT_STATE:
+                        if (autofillOptions.size()>0){
+                            int ListIndex = 0;
+                            for (CharSequence AO : autofillOptions) {
+                                String ao = AO.toString().toLowerCase().trim();
+                                if (ao.equals(ad.state.toLowerCase().trim())) {
+                                    ListIndex = autofillOptions.indexOf(AO);
+                                    break;
+                                }
+                            }
+                            return String.valueOf(ListIndex);
+                        }else {
+                            addressLine = addressLine+separator+ad.state;
+                        }
+                        break;
+                    case View.AUTOFILL_HINT_POSTAL_CODE:
+                        addressLine = addressLine+separator+ad.postalCode;
+                        break;
+                    case HINT_COUNTRY:
+                        if (autofillOptions.size()>0){
+                            int ListIndex = 0;
+                            for (CharSequence AO : autofillOptions) {
+                                String ao = AO.toString().toLowerCase().trim();
+                                if (ao.equals(ad.country.toLowerCase().trim())) {
+                                    ListIndex = autofillOptions.indexOf(AO);
+                                    break;
+                                }
+                            }
+                            return String.valueOf(ListIndex);
+                        }else {
+                            addressLine = addressLine+separator+ad.country;
+                        }
+                        break;
+                    case View.AUTOFILL_HINT_PHONE:
+                        addressLine = addressLine+separator+ad.phoneNo;
+                        break;
+                }
+                separator = ", ";
+            }
+        }
+        addressLine = addressLine.trim();
+        if (TextUtils.isEmpty(addressLine)){
+            return null;
+        }
+        return addressLine;
+    }
+
 
     private void fillResponseCard() {
+        for (int i = 0; i < passedNodes.size(); i++) {
+            ParsedStructure ps = passedNodes.get(i);
+            switch (ps.autofillhint) {
+                case View.AUTOFILL_HINT_CREDIT_CARD_NUMBER:
+                    cardNoNodeId = ps.nodeId;
+                    break;
+                case View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_MONTH:
+                    expiryMonNodeID = ps.nodeId;
+                    break;
+                case View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_YEAR:
+                    expiryYearNodeId = ps.nodeId;
+                    break;
+                case View.AUTOFILL_HINT_NAME:
+                    nameNodeId = ps.nodeId;
+                    break;
+                case View.AUTOFILL_HINT_CREDIT_CARD_SECURITY_CODE:
+                    cvvNodeId = ps.nodeId;
+                    break;
+            }
+
+        }
+
         final List<CardDataClass> cardData = new ArrayList<>(dataModel.dbHelper.getAllCards());
 
         if (cardData.size() > 0) {
@@ -185,6 +282,7 @@ public class FillResposeActivity extends AppCompatActivity {
                                     AutofillValue.forText(cD.month + "/" + cD.year), CreatePresentation(cD.bankName, cD.cardType));
                         } else {
                             if (expiryMonNodeID != null) {
+                                ViewNode expiryMonthNode = nodeParser.TraverseStructure(assistStructure,expiryMonNodeID);
                                 if (expiryMonthNode.getAutofillOptions()!=null&&
                                         Arrays.asList(expiryMonthNode.getAutofillOptions()).size()>0) {
                                     List<CharSequence> autoFillOptions = Arrays.asList(expiryMonthNode.getAutofillOptions());
@@ -194,6 +292,7 @@ public class FillResposeActivity extends AppCompatActivity {
                                         if (ao.trim().contains(cD.month.trim()) || ao.toLowerCase().trim()
                                                 .contains(Month.of(Integer.valueOf(cD.month)).name().toLowerCase().trim())) {
                                             ListIndex = autoFillOptions.indexOf(ao);
+                                            break;
                                         }
                                     }
                                     dataSetBuilder.setValue(expiryMonNodeID,
@@ -204,6 +303,7 @@ public class FillResposeActivity extends AppCompatActivity {
                                 }
                             }
                             if (expiryYearNodeId != null) {
+                                ViewNode expiryYearNode = nodeParser.TraverseStructure(assistStructure,expiryYearNodeId);
                                 if (expiryYearNode.getAutofillOptions()!=null&&
                                         Arrays.asList(expiryYearNode.getAutofillOptions()).size()>0) {
                                     List<CharSequence> autoFillOptions = Arrays.asList(expiryYearNode.getAutofillOptions());
@@ -212,6 +312,7 @@ public class FillResposeActivity extends AppCompatActivity {
                                         String ao = AO.toString();
                                         if (ao.trim().contains(cD.year.trim())) {
                                             ListIndex = autoFillOptions.indexOf(ao);
+                                            break;
                                         }
                                     }
                                     dataSetBuilder.setValue(expiryYearNodeId,
@@ -246,6 +347,25 @@ public class FillResposeActivity extends AppCompatActivity {
     }
 
     private void fillResponsePassword() {
+
+        for (int i = 0; i < passedNodes.size(); i++) {
+            ParsedStructure ps = passedNodes.get(i);
+            switch (ps.autofillhint) {
+                case View.AUTOFILL_HINT_USERNAME:
+                    usernameNodeId = ps.nodeId;
+                    break;
+                case View.AUTOFILL_HINT_EMAIL_ADDRESS:
+                    emailNodeId = ps.nodeId;
+                    break;
+                case View.AUTOFILL_HINT_PASSWORD:
+                    passwordNodeId = ps.nodeId;
+                    break;
+                case View.AUTOFILL_HINT_PHONE:
+                    phoneNodeId = ps.nodeId;
+                    break;
+            }
+
+        }
 
         if (usernameNodeId == null && emailNodeId != null) {
             usernameNodeId = emailNodeId;

@@ -3,6 +3,7 @@ package com.example.autofill.util;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.widget.LinearLayout;
 
 import com.example.autofill.dataClass.AddressDataClass;
 import com.example.autofill.dataClass.CardDataClass;
@@ -36,7 +37,7 @@ public class DataModel {
        passwordData = dbHelper.getAllPassword();
        cardData = dbHelper.getAllCards();
        installedApps = getInstalledApps();
-
+       addressData = dbHelper.getAllAddress();
     }
 
     public void addNewPassword(PasswordDataClass newPassword){
@@ -59,6 +60,12 @@ public class DataModel {
            dbHelper.insertPassword(newPassword.serviceName, newPassword.subText, newPassword.username,
                    newPassword.password);
        }
+    }
+
+    public void addNewAddress(AddressDataClass newAddress){
+       dbHelper.insertAddress(newAddress.name,newAddress.flatNo,newAddress.buildingName,newAddress.streetNo,
+               newAddress.streetName,newAddress.locality,newAddress.city,newAddress.state,newAddress.postalCode,
+               newAddress.country,newAddress.phoneNo);
     }
 
     public void addNewCard(CardDataClass cardData){
@@ -108,5 +115,12 @@ public class DataModel {
             }
         }
         return list;
+    }
+
+    public void triggerAddressDataUpdated() {
+        addressData = dbHelper.getAllAddress();
+        for (int i=0;i<listeners.size();i++){
+            listeners.get(i).AddressDataUpdated(addressData);
+        }
     }
 }

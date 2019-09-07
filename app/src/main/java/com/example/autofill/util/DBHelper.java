@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.example.autofill.dataClass.AddressDataClass;
 import com.example.autofill.dataClass.CardDataClass;
 import com.example.autofill.dataClass.PasswordDataClass;
 
@@ -37,7 +38,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 Contract.Address.NAME+" text, "+Contract.Address.FLAT_NO+" text, "+Contract.Address.BUILDING_NAME
                 +" text, "+Contract.Address.STREET_NO+" text, "+Contract.Address.STREET_NAME+" text, "+
                 Contract.Address.LOCALITY+" text, "+Contract.Address.CITY+" text, "+Contract.Address.STATE
-                +" text, "+Contract.Address.COUNTRY+" text, "+Contract.Address.POSTAL+" text)";
+                +" text, "+Contract.Address.COUNTRY+" text, "+Contract.Address.POSTAL+" text, "+Contract.Address.PHONE+" text)";
         sqLiteDatabase.execSQL(query);
     }
 
@@ -56,6 +57,24 @@ public class DBHelper extends SQLiteOpenHelper {
         contentValues.put(Contract.Password.USERNAME,username);
         contentValues.put(Contract.Password.PASSWORD,password);
         sqLiteDatabase.insert(Contract.Password.TABLE_NAME,null, contentValues);
+    }
+    public void insertAddress(String name, String flatNo, String buildingName, String streetNo,
+                              String streetName, String locality, String city, String state, String postalCode,
+                              String country, String phoneNo){
+        SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(Contract.Address.NAME,name);
+        contentValues.put(Contract.Address.FLAT_NO,flatNo);
+        contentValues.put(Contract.Address.BUILDING_NAME,buildingName);
+        contentValues.put(Contract.Address.STREET_NO,streetNo);
+        contentValues.put(Contract.Address.STREET_NAME,streetName);
+        contentValues.put(Contract.Address.LOCALITY,locality);
+        contentValues.put(Contract.Address.CITY,city);
+        contentValues.put(Contract.Address.STATE,state);
+        contentValues.put(Contract.Address.POSTAL,postalCode);
+        contentValues.put(Contract.Address.COUNTRY,country);
+        contentValues.put(Contract.Address.PHONE,phoneNo);
+        sqLiteDatabase.insert(Contract.Address.TABLE_NAME,null, contentValues);
     }
     public void updatePassword(int id,String service,String subtext, String username, String password){
         SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
@@ -98,6 +117,28 @@ public class DBHelper extends SQLiteOpenHelper {
             res.moveToNext();
         }
         return passwordData;
+    }
+    public List<AddressDataClass> getAllAddress(){
+        List<AddressDataClass> addressData = new ArrayList<>();
+        SQLiteDatabase sqLiteDatabase = this.getReadableDatabase();
+        Cursor res = sqLiteDatabase.rawQuery("select * from "+Contract.Address.TABLE_NAME,null);
+        res.moveToFirst();
+        while (res.isAfterLast() == false){
+            addressData.add(new AddressDataClass(res.getInt(res.getColumnIndex(Contract.Address.ID)),
+                    res.getString(res.getColumnIndex(Contract.Address.NAME)),
+                    res.getString(res.getColumnIndex(Contract.Address.FLAT_NO)),
+                    res.getString(res.getColumnIndex(Contract.Address.BUILDING_NAME)),
+                    res.getString(res.getColumnIndex(Contract.Address.STREET_NO)),
+                    res.getString(res.getColumnIndex(Contract.Address.STREET_NAME)),
+                    res.getString(res.getColumnIndex(Contract.Address.LOCALITY)),
+                    res.getString(res.getColumnIndex(Contract.Address.CITY)),
+                    res.getString(res.getColumnIndex(Contract.Address.STATE)),
+                    res.getString(res.getColumnIndex(Contract.Address.POSTAL)),
+                    res.getString(res.getColumnIndex(Contract.Address.COUNTRY)),
+                    res.getString(res.getColumnIndex(Contract.Address.PHONE))));
+            res.moveToNext();
+        }
+        return addressData;
     }
 
     public int deletePassword(int id){

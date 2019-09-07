@@ -25,7 +25,18 @@ public class NodeParser {
     private static final String UNKNOWN_HINT = "UNKNOWN";
     private static final String LOGIN_FORM = "LOGIN_FORM";
     private static final String CARD_FORM = "CARD_FORM";
+    private static final String ADDRESS_FORM = "ADDRESS_FORM";
     private static final String RESTRICTED = "RESTRICTED";
+    private static final String HINT_CITY = "CITY";
+    private static final String HINT_STATE = "STATE";
+    private static final String HINT_LOCALITY ="LOCALITY" ;
+    private static final String HINT_FLAT_NO = "FLAT_NO" ;
+    private static final String HINT_BUILDING_NAME = "BUILDING_NAME";
+    private static final String HINT_STREET_NO = "STREET_NO";
+    private static final String HINT_STREET_NAME = "STREET_NAME";
+    private static final String HINT_COUNTRY = "COUNTRY" ;
+    private List<String> addressFormComp = Arrays.asList(GenericStringBase.addressForm);
+
     private List<stringBasePair> stringBaseList = new ArrayList<>();
 
     public ArrayList<ParsedStructure> TraverseStructure(AssistStructure structure) {
@@ -36,11 +47,18 @@ public class NodeParser {
         stringBaseList.add(new stringBasePair(GenericStringBase.phone, View.AUTOFILL_HINT_PHONE));
         stringBaseList.add(new stringBasePair(GenericStringBase.expiryMonth, View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_MONTH));
         stringBaseList.add(new stringBasePair(GenericStringBase.expiryYear, View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_YEAR));
-        stringBaseList.add(new stringBasePair(GenericStringBase.holderName, View.AUTOFILL_HINT_NAME));
         stringBaseList.add(new stringBasePair(GenericStringBase.cvv, View.AUTOFILL_HINT_CREDIT_CARD_SECURITY_CODE));
         stringBaseList.add(new stringBasePair(GenericStringBase.cardNo, View.AUTOFILL_HINT_CREDIT_CARD_NUMBER));
         stringBaseList.add(new stringBasePair(GenericStringBase.postal, View.AUTOFILL_HINT_POSTAL_CODE));
-        stringBaseList.add(new stringBasePair(GenericStringBase.city, "CITY"));
+        stringBaseList.add(new stringBasePair(GenericStringBase.city, HINT_CITY));
+        stringBaseList.add(new stringBasePair(GenericStringBase.state, HINT_STATE));
+        stringBaseList.add(new stringBasePair(GenericStringBase.locality, HINT_LOCALITY));
+        stringBaseList.add(new stringBasePair(GenericStringBase.flatno, HINT_FLAT_NO));
+        stringBaseList.add(new stringBasePair(GenericStringBase.buildingName, HINT_BUILDING_NAME));
+        stringBaseList.add(new stringBasePair(GenericStringBase.streetNo, HINT_STREET_NO));
+        stringBaseList.add(new stringBasePair(GenericStringBase.streetName, HINT_STREET_NAME));
+        stringBaseList.add(new stringBasePair(GenericStringBase.country, HINT_COUNTRY));
+        stringBaseList.add(new stringBasePair(GenericStringBase.holderName, View.AUTOFILL_HINT_NAME));
         ArrayList<ParsedStructure> passedNodes = new ArrayList<>();
         int nodes = structure.getWindowNodeCount();
 
@@ -50,16 +68,18 @@ public class NodeParser {
             passedNodes.addAll(traverseNode(viewNode));
         }
         passedNodes = cleanseNode(passedNodes);
+        List<ParsedStructure> unknownNodes = new ArrayList<>();
         for (ParsedStructure pn : passedNodes) {
             if (pn.autofillhint.contains(UNKNOWN_HINT)) {
-                passedNodes.remove(pn);
+                unknownNodes.add(pn);
             }
         }
+        passedNodes.removeAll(unknownNodes);
         return passedNodes;
     }
 
     private ArrayList<ParsedStructure> cleanseNode(ArrayList<ParsedStructure> passedNodes) {
-        ArrayList<ParsedStructure> retunPassedNodes = new ArrayList<>(passedNodes);
+        ArrayList<ParsedStructure> returnPassedNodes = new ArrayList<>(passedNodes);
         List<String> passwordNodes = new ArrayList<>();
         List<String> cardNodes = new ArrayList<>();
         for (ParsedStructure pn : passedNodes) {
@@ -71,7 +91,7 @@ public class NodeParser {
             List<String> validLoginNodes = new ArrayList<>(Arrays.asList(GenericStringBase.login_form));
             validLoginNodes.removeAll(passwordNodes);
             for (String vln : validLoginNodes) {
-                for (ParsedStructure rpn : retunPassedNodes) {
+                for (ParsedStructure rpn : returnPassedNodes) {
                     if (rpn.autofillhint.equals(UNKNOWN_HINT)) {
                         rpn.autofillhint = vln;
                         break;
@@ -82,7 +102,7 @@ public class NodeParser {
             List<String> validCardNodes = new ArrayList<>(Arrays.asList(GenericStringBase.card_form));
             validCardNodes.removeAll(cardNodes);
             for (String vcn : validCardNodes) {
-                for (ParsedStructure rpn : retunPassedNodes) {
+                for (ParsedStructure rpn : returnPassedNodes) {
                     if (rpn.autofillhint.equals(UNKNOWN_HINT)) {
                         rpn.autofillhint = vcn;
                         break;
@@ -90,22 +110,28 @@ public class NodeParser {
                 }
             }
         }
-        return retunPassedNodes;
+        return returnPassedNodes;
     }
 
     public String determineFormType(ArrayList<ParsedStructure> passedNodes) {
         HashSet<String> passwordNodes = new HashSet<>();
         HashSet<String> cardNodes = new HashSet<>();
+        HashSet<String> addressNodes = new HashSet<>();
         for (ParsedStructure pn : passedNodes) {
             passwordNodes.add(pn.autofillhint);
             cardNodes.add(pn.autofillhint);
+            addressNodes.add(pn.autofillhint);
         }
         passwordNodes.removeAll(Arrays.asList(GenericStringBase.login_form));
         cardNodes.removeAll(Arrays.asList(GenericStringBase.card_form));
-        if (passwordNodes.size() < cardNodes.size()) {
+        addressNodes.removeAll(Arrays.asList(GenericStringBase.addressForm));
+
+        if (passwordNodes.size() < cardNodes.size() && passwordNodes.size() < addressNodes.size()) {
             return LOGIN_FORM;
-        } else if (cardNodes.size() < passwordNodes.size()) {
+        } else if (cardNodes.size() < passwordNodes.size() && cardNodes.size() < addressNodes.size()) {
             return CARD_FORM;
+        } else if (addressNodes.size() < passwordNodes.size() && addressNodes.size() < cardNodes.size()){
+            return ADDRESS_FORM;
         }
         return "";
     }
@@ -127,14 +153,18 @@ public class NodeParser {
                     passedNodes.add(new ParsedStructure(viewNode.getAutofillId(), RESTRICTED));
                 } else {
                     Boolean isUnknown = true;
+                    List<stringBasePair> assignedPairs = new ArrayList<>();
                     for (stringBasePair sbp : stringBaseList) {
                         if (CompareStringBase(searchQuery, sbp.stringBase)) {
                             passedNodes.add(new ParsedStructure(viewNode.getAutofillId(), sbp.hints));
-                            stringBaseList.remove(sbp);
+                            assignedPairs.add(sbp);
                             isUnknown = false;
-                            break;
+                            if (!addressFormComp.contains(sbp.hints)){
+                                break;
+                            }
                         }
                     }
+                    stringBaseList.removeAll(assignedPairs);
                     if (isUnknown){
                         passedNodes.add(new ParsedStructure(viewNode.getAutofillId(), UNKNOWN_HINT));
                     }

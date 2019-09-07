@@ -5,11 +5,20 @@
     android:layout_height="match_parent"
     tools:context=".fragments.AddressFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <ListView
+        android:id="@+id/address_ListView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="Comming Soon"
-        android:gravity="center"/>
+        android:choiceMode="multipleChoiceModal"
+        android:divider="@null"/>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/Fab_address"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:src="@drawable/add"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="20dp"/>
 
 </FrameLayout>
