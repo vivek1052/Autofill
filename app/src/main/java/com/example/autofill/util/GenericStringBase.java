@@ -31,6 +31,9 @@ public class GenericStringBase {
     public static String[] country = {"country"};
     public static String[] restricted = {"otp","search","INCOMPATIBLE_TYPE","reply","comment","dummy",
     "amount"};
+    public static String[] multiValueFields = {View.AUTOFILL_HINT_NAME,HINT_BUILDING_NAME,
+            HINT_FLAT_NO,HINT_LOCALITY,HINT_STREET_NAME,HINT_STREET_NO,View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_MONTH,
+    View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_YEAR};
     public static String[] login_form = {View.AUTOFILL_HINT_USERNAME,View.AUTOFILL_HINT_PASSWORD,
             View.AUTOFILL_HINT_EMAIL_ADDRESS,View.AUTOFILL_HINT_PHONE};
     public static String[] card_form = {View.AUTOFILL_HINT_CREDIT_CARD_NUMBER,View.AUTOFILL_HINT_NAME,

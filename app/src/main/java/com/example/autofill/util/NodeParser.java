@@ -35,7 +35,7 @@ public class NodeParser {
     private static final String HINT_STREET_NO = "STREET_NO";
     private static final String HINT_STREET_NAME = "STREET_NAME";
     private static final String HINT_COUNTRY = "COUNTRY" ;
-    private List<String> addressFormComp = Arrays.asList(GenericStringBase.addressForm);
+    private List<String> multiValueFields = Arrays.asList(GenericStringBase.multiValueFields);
 
     private List<stringBasePair> stringBaseList = new ArrayList<>();
 
@@ -159,7 +159,7 @@ public class NodeParser {
                             passedNodes.add(new ParsedStructure(viewNode.getAutofillId(), sbp.hints));
                             assignedPairs.add(sbp);
                             isUnknown = false;
-                            if (!addressFormComp.contains(sbp.hints)){
+                            if (!multiValueFields.contains(sbp.hints)){
                                 break;
                             }
                         }
