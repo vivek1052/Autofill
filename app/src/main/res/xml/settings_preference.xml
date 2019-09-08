@@ -1,35 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.preference.PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <PreferenceCategory android:title = "Autofill System Settings">
         <androidx.preference.Preference
             app:key="autoFillService"
-            app:title="AutoFill Service"
-            app:summary="Select Autofill as default autofill app in settings">
+            app:summary="Select Autofill as default autofill app in settings"
+            app:title="AutoFill Service">
         </androidx.preference.Preference>
-        <androidx.preference.SwitchPreferenceCompat
-            app:key="fingerPrintEnabled"
-            app:title="Enable fingerprint Reader"
-            app:summary="Fingerprint can be used to save Master password
-in Secure Android Key Store."/>
     </PreferenceCategory>
 
     <PreferenceCategory android:title = "Google">
-    <androidx.preference.SwitchPreferenceCompat
-        app:key="googleAccountLinked"
-        app:title="Sync with Google Drive"
-        app:summary="Login to your Drive to enable daily backups"/>
     <androidx.preference.Preference
         app:key="RetriveFromDrive"
-        app:title="Retrieve Saved Data from Drive"
-        app:summary="Restore the last Google Drive Backup">
+        app:summary="Restore the last Google Drive Backup"
+        app:title="Retrieve Saved Data from Drive">
     </androidx.preference.Preference>
+    <androidx.preference.SwitchPreferenceCompat
+        app:key="googleAccountLinked"
+        app:summary="Login to your Drive to enable daily backups"
+        app:title="Sync with Google Drive"/>
     </PreferenceCategory>
-
-    <androidx.preference.ListPreference
-        app:key="darkMode"
-        app:title="Apply DarkMode"
+    <PreferenceCategory android:title = "App Settings">
+        <androidx.preference.ListPreference
         app:entries="@array/dark_mode_alias"
-        app:entryValues="@array/dark_mode"/>
-
+        app:entryValues="@array/dark_mode"
+        app:key="darkMode"
+        app:title="Apply DarkMode"/>
+    <androidx.preference.SwitchPreferenceCompat
+            app:key="fingerPrintEnabled"
+            app:summary="Fingerprint can be used to save Master password
+in Secure Android Key Store."
+            app:title="Enable fingerprint Reader"/>
+    </PreferenceCategory>
 </androidx.preference.PreferenceScreen>

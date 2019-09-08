@@ -24,6 +24,7 @@ import android.widget.RemoteViews;
 
 import com.example.autofill.FillResposeActivity;
 import com.example.autofill.OnSaveAutoFillActivity;
+import com.example.autofill.R;
 import com.example.autofill.dataClass.ParsedStructure;
 
 import java.util.ArrayList;
@@ -54,8 +55,7 @@ public class AutoFillServiceExtend extends AutofillService {
             autofillId[i] = passedNodes.get(i).nodeId;
         }
 
-        RemoteViews authPresentation = new RemoteViews(getPackageName(), android.R.layout.simple_list_item_1);
-        authPresentation.setTextViewText(android.R.id.text1, "Autofill Master Password");
+        RemoteViews authPresentation = new RemoteViews(getPackageName(), R.layout.authen_tab);
         Intent authIntent = new Intent(this, FillResposeActivity.class);
 
         Bundle fillReqBundle = new Bundle();

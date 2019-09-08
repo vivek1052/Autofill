@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.fragment.app.Fragment;
 import androidx.preference.ListPreference;
+import androidx.preference.MultiSelectListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
@@ -59,6 +60,7 @@ public class SettingsFragment extends Fragment {
     private static final String AUTOFILL_SER = "autoFillService";
     private static final String GOOGLEACCOUNT = "googleAccountLinked";
     private static final String RETRIEVE_BACKUP = "RetriveFromDrive";
+    private static final String RESTRICTED_PACKAGES = "restrictedPackages";
     private static final String DARK_MODE = "darkMode";
 
     private static final int RC_SIGN_IN = 1;
@@ -99,7 +101,6 @@ public class SettingsFragment extends Fragment {
             } else {
                 findPreference(AUTOFILL_SER).setSummary("Disabled");
             }
-            SwitchPreferenceCompat googleSign = findPreference(GOOGLEACCOUNT);
 
             findPreference(RETRIEVE_BACKUP).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
@@ -108,6 +109,7 @@ public class SettingsFragment extends Fragment {
                     return true;
                 }
             });
+
         }
 
         private void retrieveFromDrive() {
