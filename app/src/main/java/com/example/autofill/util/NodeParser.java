@@ -35,12 +35,23 @@ public class NodeParser {
     private static final String HINT_STREET_NO = "STREET_NO";
     private static final String HINT_STREET_NAME = "STREET_NAME";
     private static final String HINT_COUNTRY = "COUNTRY" ;
+    private static final String IDENTITY_FORM = "IDENTITY_FORM";
+    private static final String HINT_AADHAAR = "AADHAAR" ;
+    private static final String HINT_PAN_CARD = "PAN_CARD" ;
+    private static final String HINT_PASSPORT = "PASSPORT" ;
+    private static final String HINT_DRIVING_LICENSE = "DRIVING_LICENSE" ;
+    private static final String HINT_UAN_NUMBER = "UAN_NUMBER" ;
     private List<String> multiValueFields = Arrays.asList(GenericStringBase.multiValueFields);
 
     private List<stringBasePair> stringBaseList = new ArrayList<>();
 
     public ArrayList<ParsedStructure> TraverseStructure(AssistStructure structure) {
 
+        stringBaseList.add(new stringBasePair(GenericStringBase.aadhaarCard, HINT_AADHAAR));
+        stringBaseList.add(new stringBasePair(GenericStringBase.drivingLicense, HINT_DRIVING_LICENSE));
+        stringBaseList.add(new stringBasePair(GenericStringBase.panCard, HINT_PAN_CARD));
+        stringBaseList.add(new stringBasePair(GenericStringBase.passport, HINT_PASSPORT));
+        stringBaseList.add(new stringBasePair(GenericStringBase.uanNumber, HINT_UAN_NUMBER));
         stringBaseList.add(new stringBasePair(GenericStringBase.password, View.AUTOFILL_HINT_PASSWORD));
         stringBaseList.add(new stringBasePair(GenericStringBase.username, View.AUTOFILL_HINT_USERNAME));
         stringBaseList.add(new stringBasePair(GenericStringBase.email, View.AUTOFILL_HINT_EMAIL_ADDRESS));
@@ -117,21 +128,29 @@ public class NodeParser {
         HashSet<String> passwordNodes = new HashSet<>();
         HashSet<String> cardNodes = new HashSet<>();
         HashSet<String> addressNodes = new HashSet<>();
+        HashSet<String> identityNodes = new HashSet<>();
         for (ParsedStructure pn : passedNodes) {
             passwordNodes.add(pn.autofillhint);
             cardNodes.add(pn.autofillhint);
             addressNodes.add(pn.autofillhint);
+            identityNodes.add(pn.autofillhint);
         }
         passwordNodes.removeAll(Arrays.asList(GenericStringBase.login_form));
         cardNodes.removeAll(Arrays.asList(GenericStringBase.card_form));
         addressNodes.removeAll(Arrays.asList(GenericStringBase.addressForm));
-
-        if (passwordNodes.size() < cardNodes.size() && passwordNodes.size() < addressNodes.size()) {
+        identityNodes.removeAll(Arrays.asList(GenericStringBase.identityForm));
+        if (passwordNodes.size() < cardNodes.size() && passwordNodes.size() < addressNodes.size()
+                && passwordNodes.size() < identityNodes.size()) {
             return LOGIN_FORM;
-        } else if (cardNodes.size() < passwordNodes.size() && cardNodes.size() < addressNodes.size()) {
+        } else if (cardNodes.size() < passwordNodes.size() && cardNodes.size() < addressNodes.size() &&
+                cardNodes.size() < identityNodes.size()) {
             return CARD_FORM;
-        } else if (addressNodes.size() < passwordNodes.size() && addressNodes.size() < cardNodes.size()){
+        } else if (addressNodes.size() < passwordNodes.size() && addressNodes.size() < cardNodes.size() &&
+        addressNodes.size() < identityNodes.size()){
             return ADDRESS_FORM;
+        } else if (identityNodes.size() < passwordNodes.size() && identityNodes.size() < cardNodes.size() &&
+            identityNodes.size() < addressNodes.size()){
+            return IDENTITY_FORM;
         }
         return "";
     }

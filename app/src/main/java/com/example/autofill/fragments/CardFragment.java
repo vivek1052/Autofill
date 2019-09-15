@@ -21,6 +21,7 @@ import com.example.autofill.R;
 import com.example.autofill.adapter.CardAdapter;
 import com.example.autofill.dataClass.AddressDataClass;
 import com.example.autofill.dataClass.CardDataClass;
+import com.example.autofill.dataClass.IdentityDataClass;
 import com.example.autofill.dataClass.PasswordDataClass;
 import com.example.autofill.util.Authenticate;
 import com.example.autofill.util.DataUpdateCallback;
@@ -38,7 +39,7 @@ import javax.crypto.NoSuchPaddingException;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class CardFragment extends Fragment implements DataUpdateCallback {
+public class CardFragment extends Fragment implements DataUpdateCallback, AdapterView.OnItemClickListener {
     MainActivity mainActivity;
     CardAdapter adapter;
     @Override
@@ -54,37 +55,7 @@ public class CardFragment extends Fragment implements DataUpdateCallback {
         adapter = new CardAdapter(mainActivity,cardDataList);
         listView.setAdapter(adapter);
         mainActivity.dataModel.addEventLister(this);
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                final CardDataClass cardData =(CardDataClass) adapter.getItem(i);
-
-                    Authenticate authenticate = new Authenticate(mainActivity,R.string.decrypt);
-                    authenticate.setListener(new Authenticate.authCallBack() {
-                        @Override
-                        public void onAuthenticationSuccess(String mastPass) {
-                            try {
-                                cardData.cardNo1=(mainActivity.cipherClass.decrypt((cardData.cardNo1),mastPass));
-                                cardData.cardNo2=(mainActivity.cipherClass.decrypt((cardData.cardNo2),mastPass));
-                                cardData.cardNo3=(mainActivity.cipherClass.decrypt((cardData.cardNo3),mastPass));
-                                cardData.cardNo4=(mainActivity.cipherClass.decrypt((cardData.cardNo4),mastPass));
-                                cardData.month=(mainActivity.cipherClass.decrypt((cardData.month),mastPass));
-                                cardData.year=(mainActivity.cipherClass.decrypt((cardData.year),mastPass));
-                                cardData.cvv=(mainActivity.cipherClass.decrypt((cardData.cvv),mastPass));
-                                adapter.notifyDataSetChanged();
-                            } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
-                                e.printStackTrace();
-                            }
-                        }
-
-                        @Override
-                        public void onAuthenticationFailed() {
-
-                        }
-                    });
-
-            }
-        });
+        listView.setOnItemClickListener(this);
         listView.setMultiChoiceModeListener(new onMultiSelect());
         view.findViewById(R.id.Fab_card).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -121,6 +92,39 @@ public class CardFragment extends Fragment implements DataUpdateCallback {
     @Override
     public void AddressDataUpdated(List<AddressDataClass> updatedData) {
 
+    }
+
+    @Override
+    public void IdentityDataUpdated(List<IdentityDataClass> updatedData) {
+
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+        final CardDataClass cardData =(CardDataClass) adapter.getItem(i);
+        Authenticate authenticate = new Authenticate(mainActivity,R.string.decrypt);
+        authenticate.setListener(new Authenticate.authCallBack() {
+            @Override
+            public void onAuthenticationSuccess(String mastPass) {
+                try {
+                    cardData.cardNo1=(mainActivity.cipherClass.decrypt((cardData.cardNo1),mastPass));
+                    cardData.cardNo2=(mainActivity.cipherClass.decrypt((cardData.cardNo2),mastPass));
+                    cardData.cardNo3=(mainActivity.cipherClass.decrypt((cardData.cardNo3),mastPass));
+                    cardData.cardNo4=(mainActivity.cipherClass.decrypt((cardData.cardNo4),mastPass));
+                    cardData.month=(mainActivity.cipherClass.decrypt((cardData.month),mastPass));
+                    cardData.year=(mainActivity.cipherClass.decrypt((cardData.year),mastPass));
+                    cardData.cvv=(mainActivity.cipherClass.decrypt((cardData.cvv),mastPass));
+                    adapter.notifyDataSetChanged();
+                } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onAuthenticationFailed() {
+
+            }
+        });
     }
 
     class onMultiSelect implements AbsListView.MultiChoiceModeListener{

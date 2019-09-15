@@ -20,10 +20,12 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.autofill.dataClass.AddressDataClass;
 import com.example.autofill.dataClass.CardDataClass;
+import com.example.autofill.dataClass.IdentityDataClass;
 import com.example.autofill.dataClass.ParsedStructure;
 import com.example.autofill.dataClass.PasswordDataClass;
 import com.example.autofill.util.Authenticate;
 import com.example.autofill.util.CipherClass;
+import com.example.autofill.util.Contract;
 import com.example.autofill.util.DataModel;
 import com.example.autofill.util.GenericStringBase;
 import com.example.autofill.util.NodeParser;
@@ -50,6 +52,7 @@ public class FillResposeActivity extends AppCompatActivity {
     private static final String LOGIN_FORM = "LOGIN_FORM";
     private static final String CARD_FORM = "CARD_FORM";
     private static final String ADDRESS_FORM = "ADDRESS_FORM";
+    private static final String IDENTITY_FORM = "IDENTITY_FORM";
     private static final String HINT_CITY = "CITY";
     private static final String HINT_STATE = "STATE";
     private static final String HINT_LOCALITY = "LOCALITY";
@@ -58,7 +61,19 @@ public class FillResposeActivity extends AppCompatActivity {
     private static final String HINT_STREET_NO = "STREET_NO";
     private static final String HINT_STREET_NAME = "STREET_NAME";
     private static final String HINT_COUNTRY = "COUNTRY";
-    AutofillId usernameNodeId, passwordNodeId, phoneNodeId, emailNodeId, cardNoNodeId, expiryMonNodeID, expiryYearNodeId, nameNodeId, cvvNodeId;
+    private static final String HINT_AADHAAR = "AADHAAR";
+    private static final String HINT_PAN_CARD = "PAN_CARD";
+    private static final String HINT_PASSPORT = "PASSPORT";
+    private static final String HINT_DRIVING_LICENSE = "DRIVING_LICENSE";
+    private static final String HINT_UAN_NUMBER = "UAN_NUMBER" ;
+    private static final String AADHAAR_CARD = "Aadhaar Card";
+    private static final String DRIVING_LICENCE = "Driving Licence";
+    private static final String PAN_CARD = "Pan Card";
+    private static final String PASSPORT = "Passport";
+    private static final String UAN_NUMBER = "UAN Number";
+    AutofillId usernameNodeId, passwordNodeId, phoneNodeId, emailNodeId, cardNoNodeId,
+            expiryMonNodeID, expiryYearNodeId, nameNodeId, cvvNodeId, aadhaarNodeId, drivingNodeId,
+            passportNodeId,panCardNodeId, uanNumberNodeId;
     String packageName;
     DataModel dataModel;
     CipherClass cipherClass;
@@ -109,10 +124,176 @@ public class FillResposeActivity extends AppCompatActivity {
             fillResponseCard();
         } else if (formType.equals(ADDRESS_FORM)) {
             fillResponseAddress();
+        } else if (formType.equals(IDENTITY_FORM)) {
+            fillResponseIdentity();
         } else {
             finishAndRemoveTask();
         }
 
+    }
+
+    private void fillResponseIdentity() {
+        for (ParsedStructure pn: passedNodes){
+            switch (pn.autofillhint){
+                case HINT_AADHAAR:
+                    aadhaarNodeId = pn.nodeId;
+                    break;
+                case HINT_DRIVING_LICENSE:
+                    drivingNodeId = pn.nodeId;
+                    break;
+                case HINT_PASSPORT:
+                    passportNodeId = pn.nodeId;
+                    break;
+                case HINT_PAN_CARD:
+                    panCardNodeId = pn.nodeId;
+                    break;
+                case HINT_UAN_NUMBER:
+                    uanNumberNodeId = pn.nodeId;
+                    break;
+            }
+        }
+
+        if (aadhaarNodeId!=null && nodeParser.TraverseStructure(assistStructure,aadhaarNodeId).isFocused()){
+            final List<IdentityDataClass> identityData = dataModel.dbHelper.getIdentity(AADHAAR_CARD);
+            if (identityData.size() > 0){
+                final Authenticate authenticate = new Authenticate(this, R.string.decrypt);
+                authenticate.setListener(new Authenticate.authCallBack() {
+                    @Override
+                    public void onAuthenticationSuccess(String maspass) {
+                        for (IdentityDataClass id: identityData){
+                            try {
+                                id.identityNumber = cipherClass.decrypt(id.identityNumber,maspass);
+                            } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
+                                e.printStackTrace();
+                            }
+                            fillResponseBuilder.addDataset(new Dataset.Builder().setValue(aadhaarNodeId,
+                                    AutofillValue.forText(id.identityNumber),CreatePresentation(id.identityType,
+                                            id.identityNumber)).build());
+                        }
+                        setFinalResult();
+                    }
+
+                    @Override
+                    public void onAuthenticationFailed() {
+                        finishAndRemoveTask();
+                    }
+                });
+            }else {
+                finishAndRemoveTask();
+            }
+        }else if (drivingNodeId!=null && nodeParser.TraverseStructure(assistStructure,drivingNodeId).isFocused()){
+            final List<IdentityDataClass> identityData = dataModel.dbHelper.getIdentity(DRIVING_LICENCE);
+            if (identityData.size() > 0){
+                final Authenticate authenticate = new Authenticate(this, R.string.decrypt);
+                authenticate.setListener(new Authenticate.authCallBack() {
+                    @Override
+                    public void onAuthenticationSuccess(String maspass) {
+                        for (IdentityDataClass id: identityData){
+                            try {
+                                id.identityNumber = cipherClass.decrypt(id.identityNumber,maspass);
+                            } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
+                                e.printStackTrace();
+                            }
+                            fillResponseBuilder.addDataset(new Dataset.Builder().setValue(drivingNodeId,
+                                    AutofillValue.forText(id.identityNumber),CreatePresentation(id.identityType,
+                                            id.identityNumber)).build());
+                        }
+                        setFinalResult();
+                    }
+
+                    @Override
+                    public void onAuthenticationFailed() {
+                        finishAndRemoveTask();
+                    }
+                });
+            }else {
+                finishAndRemoveTask();
+            }
+        }else if (passportNodeId!=null && nodeParser.TraverseStructure(assistStructure,passportNodeId).isFocused()){
+            final List<IdentityDataClass> identityData = dataModel.dbHelper.getIdentity(PASSPORT);
+            if (identityData.size() > 0){
+                final Authenticate authenticate = new Authenticate(this, R.string.decrypt);
+                authenticate.setListener(new Authenticate.authCallBack() {
+                    @Override
+                    public void onAuthenticationSuccess(String maspass) {
+                        for (IdentityDataClass id: identityData){
+                            try {
+                                id.identityNumber = cipherClass.decrypt(id.identityNumber,maspass);
+                            } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
+                                e.printStackTrace();
+                            }
+                            fillResponseBuilder.addDataset(new Dataset.Builder().setValue(passportNodeId,
+                                    AutofillValue.forText(id.identityNumber),CreatePresentation(id.identityType,
+                                            id.identityNumber)).build());
+                        }
+                        setFinalResult();
+                    }
+
+                    @Override
+                    public void onAuthenticationFailed() {
+                        finishAndRemoveTask();
+                    }
+                });
+            }else {
+                finishAndRemoveTask();
+            }
+        }else if (panCardNodeId!=null && nodeParser.TraverseStructure(assistStructure,panCardNodeId).isFocused()){
+            final List<IdentityDataClass> identityData = dataModel.dbHelper.getIdentity(PAN_CARD);
+            if (identityData.size() > 0){
+                final Authenticate authenticate = new Authenticate(this, R.string.decrypt);
+                authenticate.setListener(new Authenticate.authCallBack() {
+                    @Override
+                    public void onAuthenticationSuccess(String maspass) {
+                        for (IdentityDataClass id: identityData){
+                            try {
+                                id.identityNumber = cipherClass.decrypt(id.identityNumber,maspass);
+                            } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
+                                e.printStackTrace();
+                            }
+                            fillResponseBuilder.addDataset(new Dataset.Builder().setValue(panCardNodeId,
+                                    AutofillValue.forText(id.identityNumber),CreatePresentation(id.identityType,
+                                            id.identityNumber)).build());
+                        }
+                        setFinalResult();
+                    }
+
+                    @Override
+                    public void onAuthenticationFailed() {
+                        finishAndRemoveTask();
+                    }
+                });
+            }else {
+                finishAndRemoveTask();
+            }
+        }else if (uanNumberNodeId!=null && nodeParser.TraverseStructure(assistStructure,uanNumberNodeId).isFocused()){
+            final List<IdentityDataClass> identityData = dataModel.dbHelper.getIdentity(UAN_NUMBER);
+            if (identityData.size() > 0){
+                final Authenticate authenticate = new Authenticate(this, R.string.decrypt);
+                authenticate.setListener(new Authenticate.authCallBack() {
+                    @Override
+                    public void onAuthenticationSuccess(String maspass) {
+                        for (IdentityDataClass id: identityData){
+                            try {
+                                id.identityNumber = cipherClass.decrypt(id.identityNumber,maspass);
+                            } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
+                                e.printStackTrace();
+                            }
+                            fillResponseBuilder.addDataset(new Dataset.Builder().setValue(uanNumberNodeId,
+                                    AutofillValue.forText(id.identityNumber),CreatePresentation(id.identityType,
+                                            id.identityNumber)).build());
+                        }
+                        setFinalResult();
+                    }
+
+                    @Override
+                    public void onAuthenticationFailed() {
+                        finishAndRemoveTask();
+                    }
+                });
+            }else {
+                finishAndRemoveTask();
+            }
+        }
     }
 
     private void fillResponseAddress() {
@@ -270,7 +451,7 @@ public class FillResposeActivity extends AppCompatActivity {
                         if (cardNoNodeId != null) {
                             dataSetBuilder.setValue(cardNoNodeId,
                                     AutofillValue.forText(cD.cardNo1 + cD.cardNo2 + cD.cardNo3 + cD.cardNo4),
-                                    CreatePresentation(cD.bankName, cD.cardType));
+                                    CreatePresentation(cD.bankName, cD.cardType+"-"+cD.cardNo4));
                         }
 
                         if (expiryMonNodeID != null) {
@@ -278,16 +459,16 @@ public class FillResposeActivity extends AppCompatActivity {
                             if (expiryMonthNode.getAutofillOptions() != null &&
                                     Arrays.asList(expiryMonthNode.getAutofillOptions()).size() > 0) {
                                 List<CharSequence> autoFillOptions = Arrays.asList(expiryMonthNode.getAutofillOptions());
-                                String month = getCardExpiry(expiryMonNodeID,cD,autoFillOptions);
-                                if (month!=null){
+                                String month = getCardExpiry(expiryMonNodeID, cD, autoFillOptions);
+                                if (month != null) {
                                     dataSetBuilder.setValue(expiryMonNodeID,
-                                            AutofillValue.forList(Integer.valueOf(month)), CreatePresentation(cD.bankName, cD.cardType));
+                                            AutofillValue.forList(Integer.valueOf(month)), CreatePresentation(cD.bankName, cD.cardType+"-"+cD.cardNo4));
                                 }
                             } else {
-                                String month = getCardExpiry(expiryMonNodeID,cD,new ArrayList<CharSequence>());
-                                if (month!=null){
+                                String month = getCardExpiry(expiryMonNodeID, cD, new ArrayList<CharSequence>());
+                                if (month != null) {
                                     dataSetBuilder.setValue(expiryMonNodeID,
-                                            AutofillValue.forText(month), CreatePresentation(cD.bankName, cD.cardType));
+                                            AutofillValue.forText(month), CreatePresentation(cD.bankName, cD.cardType+"-"+cD.cardNo4));
                                 }
                             }
                         }
@@ -296,27 +477,27 @@ public class FillResposeActivity extends AppCompatActivity {
                             if (expiryYearNode.getAutofillOptions() != null &&
                                     Arrays.asList(expiryYearNode.getAutofillOptions()).size() > 0) {
                                 List<CharSequence> autoFillOptions = Arrays.asList(expiryYearNode.getAutofillOptions());
-                                String year = getCardExpiry(expiryYearNodeId,cD,autoFillOptions);
-                                if (year!=null){
+                                String year = getCardExpiry(expiryYearNodeId, cD, autoFillOptions);
+                                if (year != null) {
                                     dataSetBuilder.setValue(expiryYearNodeId,
-                                            AutofillValue.forList(Integer.valueOf(year)), CreatePresentation(cD.bankName, cD.cardType));
+                                            AutofillValue.forList(Integer.valueOf(year)), CreatePresentation(cD.bankName, cD.cardType+"-"+cD.cardNo4));
                                 }
                             } else {
-                                String year = getCardExpiry(expiryYearNodeId,cD,new ArrayList<CharSequence>());
-                                if (year!=null){
+                                String year = getCardExpiry(expiryYearNodeId, cD, new ArrayList<CharSequence>());
+                                if (year != null) {
                                     dataSetBuilder.setValue(expiryYearNodeId,
-                                            AutofillValue.forText(year), CreatePresentation(cD.bankName, cD.cardType));
+                                            AutofillValue.forText(year), CreatePresentation(cD.bankName, cD.cardType+"-"+cD.cardNo4));
                                 }
                             }
                         }
 
                         if (nameNodeId != null) {
                             dataSetBuilder.setValue(nameNodeId,
-                                    AutofillValue.forText(cD.name), CreatePresentation(cD.bankName, cD.cardType));
+                                    AutofillValue.forText(cD.name), CreatePresentation(cD.bankName, cD.cardType+"-"+cD.cardNo4));
                         }
                         if (cvvNodeId != null) {
                             dataSetBuilder.setValue(cvvNodeId,
-                                    AutofillValue.forText(cD.cvv), CreatePresentation(cD.bankName, cD.cardType));
+                                    AutofillValue.forText(cD.cvv), CreatePresentation(cD.bankName, cD.cardType+"-"+cD.cardNo4));
                         }
                         fillResponseBuilder.addDataset(dataSetBuilder.build());
                     }

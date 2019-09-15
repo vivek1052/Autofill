@@ -68,4 +68,18 @@
         android:name="com.example.autofill.fragments.NewAddressFragment"
         android:label="New Address"
         tools:layout="@layout/fragment_new_address" />
+    <fragment
+        android:id="@+id/identity_menu"
+        android:name="com.example.autofill.fragments.IdentityFragment"
+        android:label="Identity"
+        tools:layout="@layout/fragment_identity">
+        <action
+            android:id="@+id/action_identity_menu_to_newIdentityFragment"
+            app:destination="@id/newIdentityFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/newIdentityFragment"
+        android:name="com.example.autofill.fragments.NewIdentityFragment"
+        android:label="New Identity"
+        tools:layout="@layout/fragment_new_identity" />
 </navigation>

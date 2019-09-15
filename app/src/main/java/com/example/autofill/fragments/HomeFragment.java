@@ -51,6 +51,13 @@ public class HomeFragment extends Fragment {
                         binding.setAddressCnt(valueAnimator.getAnimatedValue().toString());
                     }
                 }).start();
+        startCountAnimation(mainActivity.dataModel.identityData.size(),
+                new ValueAnimator.AnimatorUpdateListener() {
+                    @Override
+                    public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                        binding.setIdentityCnt(valueAnimator.getAnimatedValue().toString());
+                    }
+                }).start();
         return binding.getRoot();
     }
 

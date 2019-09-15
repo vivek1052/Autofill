@@ -87,12 +87,4 @@ public class NewCardFragment extends Fragment implements View.OnClickListener{
             });
         }
     }
-
-    public String iToS(int i){
-        return Integer.toString(i);
-    }
-
-    public int sToI(String s){
-        return Integer.valueOf(s);
-    }
 }

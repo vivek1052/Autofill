@@ -43,10 +43,10 @@ public class PasswordAdapter extends ArrayAdapter {
         binding.setPasswordData(dataList.get(position));
         View view = binding.getRoot();
         try {
-            view.findViewById(R.id.appIcon).setBackground(context.getPackageManager().
+            binding.appIcon.setBackground(context.getPackageManager().
                     getApplicationIcon(dataList.get(position).subText));
         } catch (PackageManager.NameNotFoundException e) {
-            view.findViewById(R.id.appIcon).setBackground(context.getResources().getDrawable(R.drawable.password,
+            binding.appIcon.setBackground(context.getResources().getDrawable(R.drawable.password,
                     context.getTheme()));
         }
         return view;

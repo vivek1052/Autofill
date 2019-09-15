@@ -45,6 +45,8 @@
     <string name="state">State</string>
     <string name="country">Country</string>
     <string name="phone">Phone</string>
+    <string name="Identity">Identity</string>
+    <string name="identity_number">Identity Number</string>
 
     <string-array name="dark_mode">
         <item>2</item>
@@ -61,5 +63,12 @@
     <string-array name="card_types">
         <item>Credit Card</item>
         <item>Debit Card</item>
+    </string-array>
+    <string-array name="identity_types">
+        <item>Aadhaar Card</item>
+        <item>Driving Licence</item>
+        <item>Pan Card</item>
+        <item>Passport</item>
+        <item>UAN Number</item>
     </string-array>
 </resources>

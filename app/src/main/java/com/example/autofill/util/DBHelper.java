@@ -9,6 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import com.example.autofill.dataClass.AddressDataClass;
 import com.example.autofill.dataClass.CardDataClass;
 import com.example.autofill.dataClass.PasswordDataClass;
+import com.example.autofill.dataClass.IdentityDataClass;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,13 +41,41 @@ public class DBHelper extends SQLiteOpenHelper {
                 Contract.Address.LOCALITY+" text, "+Contract.Address.CITY+" text, "+Contract.Address.STATE
                 +" text, "+Contract.Address.COUNTRY+" text, "+Contract.Address.POSTAL+" text, "+Contract.Address.PHONE+" text)";
         sqLiteDatabase.execSQL(query);
+        query = "create table "+Contract.Identity.TABLE_NAME+" ("+Contract.Identity.ID+" integer primary key, "+
+                Contract.Identity.IDENTITY_TYPE+" text, "+Contract.Identity.IDENTITY_NUMBER+" text)";
+        sqLiteDatabase.execSQL(query);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS "+Contract.Password.TABLE_NAME);
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS "+Contract.Card.TABLE_NAME);
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS "+Contract.Address.TABLE_NAME);
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS "+Contract.Identity.TABLE_NAME);
         onCreate(sqLiteDatabase);
+    }
+
+    public void insertIdentity(String identityType, String identityNumber){
+        SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(Contract.Identity.IDENTITY_TYPE,identityType);
+        contentValues.put(Contract.Identity.IDENTITY_NUMBER,identityNumber);
+        sqLiteDatabase.insert(Contract.Identity.TABLE_NAME,null, contentValues);
+    }
+
+    public List<IdentityDataClass> getIdentity(String identityType){
+        List<IdentityDataClass> identityData = new ArrayList<>();
+        SQLiteDatabase sqLiteDatabase = this.getReadableDatabase();
+        Cursor res = sqLiteDatabase.rawQuery("select * from "+Contract.Identity.TABLE_NAME+
+                " WHERE "+Contract.Identity.IDENTITY_TYPE+" = ?",new String[]{identityType});
+        res.moveToFirst();
+        while (res.isAfterLast() == false){
+            identityData.add(new IdentityDataClass(res.getInt(res.getColumnIndex(Contract.Identity.ID)),
+                    res.getString(res.getColumnIndex(Contract.Identity.IDENTITY_TYPE)),
+                    res.getString(res.getColumnIndex(Contract.Identity.IDENTITY_NUMBER))));
+            res.moveToNext();
+        }
+        return identityData;
     }
 
     public void insertPassword(String service,String subtext, String username, String password){
@@ -186,5 +215,19 @@ public class DBHelper extends SQLiteOpenHelper {
     public int deleteCard(int id){
         SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
         return sqLiteDatabase.delete(Contract.Card.TABLE_NAME,"id = ?", new String[]{Integer.toString(id)});
+    }
+
+    public List<IdentityDataClass> getAllIdentity() {
+        List<IdentityDataClass> identityData = new ArrayList<>();
+        SQLiteDatabase sqLiteDatabase = this.getReadableDatabase();
+        Cursor res = sqLiteDatabase.rawQuery("select * from "+Contract.Identity.TABLE_NAME,null);
+        res.moveToFirst();
+        while (res.isAfterLast() == false){
+            identityData.add(new IdentityDataClass(res.getInt(res.getColumnIndex(Contract.Identity.ID)),
+                    res.getString(res.getColumnIndex(Contract.Identity.IDENTITY_TYPE)),
+                    res.getString(res.getColumnIndex(Contract.Identity.IDENTITY_NUMBER))));
+            res.moveToNext();
+        }
+        return identityData;
     }
 }

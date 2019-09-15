@@ -22,6 +22,7 @@ import com.example.autofill.R;
 import com.example.autofill.adapter.PasswordAdapter;
 import com.example.autofill.dataClass.AddressDataClass;
 import com.example.autofill.dataClass.CardDataClass;
+import com.example.autofill.dataClass.IdentityDataClass;
 import com.example.autofill.dataClass.PasswordDataClass;
 import com.example.autofill.util.DataUpdateCallback;
 
@@ -92,6 +93,11 @@ public class PasswordFragment extends Fragment implements DataUpdateCallback {
 
     @Override
     public void AddressDataUpdated(List<AddressDataClass> updatedData) {
+
+    }
+
+    @Override
+    public void IdentityDataUpdated(List<IdentityDataClass> updatedData) {
 
     }
 

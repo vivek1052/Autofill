@@ -52,4 +52,11 @@ public final class Contract {
         public static final String COUNTRY = "country";
         public static final String PHONE = "phoneno";
     }
+
+    public static class Identity implements BaseColumns{
+        public static final String TABLE_NAME = "identityDB";
+        public static final String ID = "id";
+        public static final String IDENTITY_TYPE = "identitytype";
+        public static final String IDENTITY_NUMBER = "identitynumber";
+    }
 }

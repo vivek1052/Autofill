@@ -16,6 +16,7 @@ import com.example.autofill.R;
 import com.example.autofill.adapter.AddressAdapter;
 import com.example.autofill.dataClass.AddressDataClass;
 import com.example.autofill.dataClass.CardDataClass;
+import com.example.autofill.dataClass.IdentityDataClass;
 import com.example.autofill.dataClass.PasswordDataClass;
 import com.example.autofill.util.DataUpdateCallback;
 
@@ -74,5 +75,10 @@ public class AddressFragment extends Fragment implements DataUpdateCallback {
                 adapter.notifyDataSetChanged();
             }
         });
+    }
+
+    @Override
+    public void IdentityDataUpdated(List<IdentityDataClass> updatedData) {
+
     }
 }

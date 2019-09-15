@@ -21,6 +21,10 @@
             android:icon="@drawable/address"
             android:title="@string/address" />
         <item
+            android:id="@+id/identity_menu"
+            android:title="@string/Identity"
+            android:icon="@drawable/ic_perm_identity"/>
+        <item
             android:id="@+id/settings_menu"
             android:icon="@drawable/settings"
             android:title="@string/settings" />
