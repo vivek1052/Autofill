@@ -41,7 +41,7 @@ public class AddressFragment extends Fragment implements DataUpdateCallback {
         view.findViewById(R.id.Fab_address).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mainActivity.navController.navigate(R.id.action_address_menu_to_newAddressFragment);
+                mainActivity.navController.navigate(R.id.action_home_menu_to_newAddressFragment);
             }
         });
         mainActivity.dataModel.addEventLister(this);

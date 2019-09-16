@@ -19,6 +19,9 @@ import androidx.preference.PreferenceManager;
 import androidx.preference.SwitchPreferenceCompat;
 
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.autofill.AutofillManager;
@@ -250,4 +253,6 @@ public class SettingsFragment extends Fragment {
             });
         }
     }
+
+
 }

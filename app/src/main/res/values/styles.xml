@@ -3,16 +3,20 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.MaterialComponents.DayNight">
         <item name="windowActionModeOverlay">true</item>
+        <item name="actionBarSize">40dp</item>
+        <item name="android:colorBackground">@color/true_black</item>
+        <item name="colorPrimary">@color/azure</item>
+        <item name="colorSecondary">@color/crimson</item>
+        <item name="colorOnSurface">@color/pure_white</item>
     </style>
+
+
     <style name="CreditCard" parent="@style/Widget.MaterialComponents.CardView">
         <item name="cardCornerRadius">15dp</item>
         <item name="cardElevation">10dp</item>
         <item name="cardUseCompatPadding">true</item>
     </style>
-    <style name="AppTheme.NoActionBar">
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
-    </style>
+
 
     <style name="Theme.Transparent" parent="Theme.MaterialComponents">
         <item name="android:windowIsTranslucent">true</item>
@@ -23,6 +27,5 @@
         <item name="android:backgroundDimEnabled">false</item>
     </style>
 
-    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
 </resources>

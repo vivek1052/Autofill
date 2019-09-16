@@ -60,7 +60,7 @@ public class CardFragment extends Fragment implements DataUpdateCallback, Adapte
         view.findViewById(R.id.Fab_card).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mainActivity.navController.navigate(R.id.action_card_menu_to_newCardFragment);
+                mainActivity.navController.navigate(R.id.action_home_menu_to_newCardFragment);
             }
         });
         return view;

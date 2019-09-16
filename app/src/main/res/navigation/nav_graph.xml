@@ -2,43 +2,29 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    app:startDestination="@id/home_menu">
+    app:startDestination="@id/homeFragment">
 
     <fragment
-        android:id="@id/password_menu"
-        android:name="com.example.autofill.fragments.PasswordFragment"
-        android:label="Password"
-        tools:layout="@layout/fragment_password" >
+        android:id="@+id/homeFragment"
+        android:name="com.example.autofill.fragments.HomeFragment"
+        android:label="AutoFill"
+        tools:layout="@layout/fragment_home">
         <action
-            android:id="@+id/action_password_menu_to_newPasswordFragment"
+            android:id="@+id/action_home_menu_to_newPasswordFragment"
             app:destination="@id/newPasswordFragment" />
         <action
-            android:id="@+id/action_password_menu_to_displayPasswordFragment"
-            app:destination="@id/displayPasswordFragment" />
-    </fragment>
-    <fragment
-        android:id="@id/card_menu"
-        android:name="com.example.autofill.fragments.CardFragment"
-        android:label="Card"
-        tools:layout="@layout/fragment_card" >
-        <action
-            android:id="@+id/action_card_menu_to_newCardFragment"
-            app:destination="@id/newCardFragment" />
-    </fragment>
-    <fragment
-        android:id="@id/address_menu"
-        android:name="com.example.autofill.fragments.AddressFragment"
-        android:label="Address"
-        tools:layout="@layout/fragment_address" >
-        <action
-            android:id="@+id/action_address_menu_to_newAddressFragment"
+            android:id="@+id/action_home_menu_to_newAddressFragment"
             app:destination="@id/newAddressFragment" />
+        <action
+            android:id="@+id/action_home_menu_to_newCardFragment"
+            app:destination="@id/newCardFragment" />
+        <action
+            android:id="@+id/action_home_menu_to_displayPasswordFragment"
+            app:destination="@id/displayPasswordFragment" />
+        <action
+            android:id="@+id/action_home_menu_to_newIdentityFragment"
+            app:destination="@id/newIdentityFragment" />
     </fragment>
-    <fragment
-        android:id="@id/home_menu"
-        android:name="com.example.autofill.fragments.HomeFragment"
-        android:label="Home"
-        tools:layout="@layout/fragment_home" />
     <fragment
         android:id="@+id/newPasswordFragment"
         android:name="com.example.autofill.fragments.NewPasswordFragment"
@@ -59,7 +45,7 @@
         android:label="Add new Card"
         tools:layout="@layout/fragment_new_card" />
     <fragment
-        android:id="@+id/settings_menu"
+        android:id="@+id/settingsFragment"
         android:name="com.example.autofill.fragments.SettingsFragment"
         android:label="Settings"
         tools:layout="@layout/fragment_settings" />
@@ -68,15 +54,6 @@
         android:name="com.example.autofill.fragments.NewAddressFragment"
         android:label="New Address"
         tools:layout="@layout/fragment_new_address" />
-    <fragment
-        android:id="@+id/identity_menu"
-        android:name="com.example.autofill.fragments.IdentityFragment"
-        android:label="Identity"
-        tools:layout="@layout/fragment_identity">
-        <action
-            android:id="@+id/action_identity_menu_to_newIdentityFragment"
-            app:destination="@id/newIdentityFragment" />
-    </fragment>
     <fragment
         android:id="@+id/newIdentityFragment"
         android:name="com.example.autofill.fragments.NewIdentityFragment"

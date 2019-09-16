@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="card_text_color">#FFFFFF</color>
+    <color name="pure_white">#FFFFFF</color>
+    <color name="true_black">#000000</color>
     <color name="card_label_color">#D4D9DC</color>
     <color name="CTA_text">#FFFFFF</color>
     <color name="CTA_bg">#32C25E</color>
     <color name="light_blue">#a5f0ef</color>
+    <color name="azure">#007FFF</color>
+    <color name="dark_grey">#121212</color>
+    <color name="crimson">#DC143C</color>
 </resources>

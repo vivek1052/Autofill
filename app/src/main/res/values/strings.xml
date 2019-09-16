@@ -29,7 +29,7 @@
     <string name="linkWithFP">Link With Finger Print</string>
     <string name="version">Choose Version to Restore</string>
     <string name="close">Close</string>
-    <string name="channel_name">Autofill Channel</string>
+    <string name="channel_name">Auto Sync Channel</string>
     <string name="channel_description">Bankground task notifications</string>
     <string name="AutoFillServiceDescription">Assist with Autofill service for Browsers</string>
     <string name="xxxx">XXXX</string>
@@ -47,6 +47,7 @@
     <string name="phone">Phone</string>
     <string name="Identity">Identity</string>
     <string name="identity_number">Identity Number</string>
+    <string name="identity">Identity</string>
 
     <string-array name="dark_mode">
         <item>2</item>

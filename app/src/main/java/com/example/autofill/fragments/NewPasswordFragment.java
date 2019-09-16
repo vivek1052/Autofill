@@ -20,7 +20,6 @@ import com.example.autofill.dataClass.InstalledApps;
 import com.example.autofill.dataClass.PasswordDataClass;
 import com.example.autofill.databinding.FragmentNewPasswordBinding;
 import com.example.autofill.util.Authenticate;
-import com.example.autofill.util.MasterPasswrordPrompt;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;

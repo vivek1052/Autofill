@@ -7,11 +7,14 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import com.example.autofill.util.CipherClass;
 import com.example.autofill.util.DataModel;
 import com.google.android.material.navigation.NavigationView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.view.GravityCompat;
@@ -34,9 +37,6 @@ import java.util.Set;
 public class MainActivity extends AppCompatActivity {
 
     private static final String CHANNEL_ID = "AUTOFILL_CHANNEL_ID";
-    public Toolbar toolbar;
-    public DrawerLayout drawer;
-    public NavigationView navigationView;
     public NavController navController;
     public DataModel dataModel;
     public CipherClass cipherClass;
@@ -44,7 +44,6 @@ public class MainActivity extends AppCompatActivity {
     private static final int RC_SIGN_IN = 1;
     private static final String DARK_MODE = "darkMode";
 
-    private AppBarConfiguration appBarConfiguration;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,23 +52,10 @@ public class MainActivity extends AppCompatActivity {
         dataModel.retrieveAllData();
         cipherClass = new CipherClass();
 
-        toolbar = findViewById(R.id.toolbar);
-        drawer = findViewById(R.id.drawer_layout);
-        navigationView = findViewById(R.id.nav_view);
         navController = Navigation.findNavController(this,R.id.nav_host_fragment);
-        setSupportActionBar(toolbar);
+        NavigationUI.setupActionBarWithNavController(this,navController);
 
-        Set<Integer> topLevelDestinations = new HashSet<>();
-        topLevelDestinations.add(R.id.home_menu);
-        topLevelDestinations.add(R.id.password_menu);
-        topLevelDestinations.add(R.id.card_menu);
-        topLevelDestinations.add(R.id.address_menu);
 
-        appBarConfiguration = new AppBarConfiguration.Builder(topLevelDestinations)
-                                    .setDrawerLayout(drawer).build();
-
-        NavigationUI.setupActionBarWithNavController(this,navController,appBarConfiguration);
-        NavigationUI.setupWithNavController(navigationView,navController);
         createNotificationChannel();
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         if (!preferences.getString(DARK_MODE,"").equals("")){
@@ -93,10 +79,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    public boolean onSupportNavigateUp() {
-        return NavigationUI.navigateUp(navController,appBarConfiguration);
-    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -110,17 +92,32 @@ public class MainActivity extends AppCompatActivity {
         this.callbackListener = listener;
     }
 
-    @Override
-    public void onBackPressed() {
-        if(drawer.isDrawerOpen(GravityCompat.START)){
-            drawer.closeDrawer(GravityCompat.START);
-        }
-        else{
-            super.onBackPressed();
-        }
-    }
 
     public interface onCallbacks{
         void onGoogleSignIn(int resultCode, Intent data);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.activity_option_menu,menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.settings_menu:
+                navController.navigate(R.id.settingsFragment);
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        Set<Integer> topLevelDestinations = new HashSet<>();
+        topLevelDestinations.add(R.id.homeFragment);
+        AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(topLevelDestinations).build();
+        return NavigationUI.navigateUp(navController,appBarConfiguration);
     }
 }

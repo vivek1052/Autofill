@@ -131,8 +131,8 @@
                     android:inputType="textCapCharacters"
                     android:hint="@string/holderName"
                     android:fontFamily="@font/ocramedium"
-                    android:textColor="@color/card_text_color"
-                    android:textColorHint="@color/card_text_color"/>
+                    android:textColor="@color/pure_white"
+                    android:textColorHint="@color/pure_white"/>
             </LinearLayout>
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -152,7 +152,7 @@
                         android:layout_marginEnd="5dp"
                         android:text="@string/Validity"
                         android:fontFamily="@font/creditfront"
-                        android:textColor="@color/card_text_color"/>
+                        android:textColor="@color/pure_white"/>
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/month"
                         android:layout_width="wrap_content"
@@ -161,15 +161,15 @@
                         android:hint="@string/mm"
                         android:maxLength="2"
                         android:fontFamily="@font/ocramedium"
-                        android:textColor="@color/card_text_color"
-                        android:textColorHint="@color/card_text_color"/>
+                        android:textColor="@color/pure_white"
+                        android:textColorHint="@color/pure_white"/>
 
                     <com.google.android.material.textview.MaterialTextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="/"
                         android:fontFamily="@font/creditfront"
-                        android:textColor="@color/card_text_color"/>
+                        android:textColor="@color/pure_white"/>
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/year"
                         android:layout_width="wrap_content"
@@ -178,8 +178,8 @@
                         android:hint="@string/yy"
                         android:maxLength="2"
                         android:fontFamily="@font/ocramedium"
-                        android:textColor="@color/card_text_color"
-                        android:textColorHint="@color/card_text_color"/>
+                        android:textColor="@color/pure_white"
+                        android:textColorHint="@color/pure_white"/>
                 </LinearLayout>
 
                 <LinearLayout
@@ -195,7 +195,7 @@
                         android:layout_marginRight="5dp"
                         android:text="@string/cvv"
                         android:fontFamily="@font/creditfront"
-                        android:textColor="@color/card_text_color"/>
+                        android:textColor="@color/pure_white"/>
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/cvv"
@@ -206,8 +206,8 @@
                         android:maxLength="3"
                         android:textStyle="italic"
                         android:fontFamily="@font/ocramedium"
-                        android:textColor="@color/card_text_color"
-                        android:textColorHint="@color/card_text_color" />
+                        android:textColor="@color/pure_white"
+                        android:textColorHint="@color/pure_white" />
                 </LinearLayout>
             </RelativeLayout>
         </LinearLayout>

@@ -55,7 +55,7 @@ public class IdentityFragment extends Fragment implements DataUpdateCallback, Ad
         view.findViewById(R.id.Fab_identity).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mainActivity.navController.navigate(R.id.action_identity_menu_to_newIdentityFragment);
+                mainActivity.navController.navigate(R.id.action_home_menu_to_newIdentityFragment);
             }
         });
         listView.setOnItemClickListener(this);

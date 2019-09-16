@@ -12,7 +12,6 @@
             type="int" />
     </data>
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:orientation="vertical"
         android:gravity="center_horizontal"
         android:layout_width="match_parent"
@@ -61,7 +60,7 @@
                         android:textStyle="italic"
                         android:textSize="20sp"
                         android:fontFamily="@font/creditfront"
-                        android:textColor="@color/card_text_color"/>
+                        android:textColor="@color/pure_white"/>
 
                 </RelativeLayout>
 
@@ -131,7 +130,7 @@
                         android:layout_height="wrap_content"
                         android:text="@{cardData.name}"
                         android:fontFamily="@font/ocramedium"
-                        android:textColor="@color/card_text_color"
+                        android:textColor="@color/pure_white"
                         android:textSize="20sp"/>
 
                 </LinearLayout>
@@ -153,7 +152,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginRight="5dp"
                             android:fontFamily="@font/creditfront"
-                            android:textColor="@color/card_text_color"
+                            android:textColor="@color/pure_white"
                             android:text="@string/Validity" />
                         <com.google.android.material.textview.MaterialTextView
                             android:layout_width="wrap_content"
@@ -161,7 +160,7 @@
                             android:text="@{cardData.month}"
                             android:maxLength="2"
                             android:fontFamily="@font/ocramedium"
-                            android:textColor="@color/card_text_color"/>
+                            android:textColor="@color/pure_white"/>
 
                         <com.google.android.material.textview.MaterialTextView
                             android:layout_width="wrap_content"
@@ -169,7 +168,7 @@
                             android:enabled="false"
                             android:text="/"
                             android:fontFamily="@font/creditfront"
-                            android:textColor="@color/card_text_color"/>
+                            android:textColor="@color/pure_white"/>
 
                         <com.google.android.material.textview.MaterialTextView
                             android:layout_width="wrap_content"
@@ -177,7 +176,7 @@
                             android:text="@{cardData.year}"
                             android:maxLength="2"
                             android:fontFamily="@font/ocramedium"
-                            android:textColor="@color/card_text_color"/>
+                            android:textColor="@color/pure_white"/>
                     </LinearLayout>
 
                     <LinearLayout
@@ -193,7 +192,7 @@
                             android:layout_marginRight="5dp"
                             android:fontFamily="@font/creditfront"
                             android:text="@string/cvv"
-                            android:textColor="@color/card_text_color" />
+                            android:textColor="@color/pure_white" />
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -201,7 +200,7 @@
                             android:fontFamily="@font/ocramedium"
                             android:text="@{cardData.cvv}"
                             android:maxLength="3"
-                            android:textColor="@color/card_text_color"
+                            android:textColor="@color/pure_white"
                             android:textStyle="italic" />
 
                     </LinearLayout>

@@ -54,14 +54,14 @@ public class PasswordFragment extends Fragment implements DataUpdateCallback {
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Bundle bundle = new Bundle();
                 bundle.putSerializable("passwordData",(PasswordDataClass)adapterView.getItemAtPosition(i));
-                mainActivity.navController.navigate(R.id.action_password_menu_to_displayPasswordFragment,
+                mainActivity.navController.navigate(R.id.action_home_menu_to_displayPasswordFragment,
                         bundle);
             }
         });
         view.findViewById(R.id.Fab_password).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mainActivity.navController.navigate(R.id.action_password_menu_to_newPasswordFragment);
+                mainActivity.navController.navigate(R.id.action_home_menu_to_newPasswordFragment);
             }
         });
         return view;
@@ -139,7 +139,7 @@ public class PasswordFragment extends Fragment implements DataUpdateCallback {
 
         @Override
         public void onDestroyActionMode(ActionMode actionMode) {
-
+            toBeDeleted.clear();
         }
     }
 }
