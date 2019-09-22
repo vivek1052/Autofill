@@ -5,6 +5,8 @@ import android.content.Context;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -49,7 +51,16 @@ public class NewPasswordFragment extends Fragment implements View.OnClickListene
         binding.service.setAdapter(new ServiceSuggestAdapter(mainActivity, installedApps));
         binding.service.setOnItemClickListener(this);
         binding.passwordSave.setOnClickListener(this);
+        setHasOptionsMenu(true);
         return view;
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(@NonNull Menu menu) {
+        MenuItem menuItem = menu.findItem(R.id.settings_menu);
+        if (menuItem != null){
+            menuItem.setVisible(false);
+        }
     }
 
     @Override

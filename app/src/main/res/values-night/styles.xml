@@ -1,16 +1,24 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.MaterialComponents.Light.DarkActionBar">
+    <style name="AppTheme" parent="Theme.MaterialComponents">
         <item name="windowActionModeOverlay">true</item>
-        <item name="android:fontFamily">@font/caviar_dreams_bold</item>
+        <item name="android:fontFamily">@font/caviar_dreams</item>
         <item name="actionBarSize">40dp</item>
         <item name="colorPrimary">@color/azure</item>
         <item name="colorSecondary">@color/crimson</item>
+        <item name="colorSurface">@color/true_black</item>
         <item name="textInputStyle">@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense</item>
+        <item name="materialButtonStyle">@style/AppButton</item>
+        <item name="android:windowBackground">@color/true_black</item>
         <item name="actionBarStyle">@style/Widget.MaterialComponents.ActionBar.Surface</item>
         <item name="actionBarTheme">@style/ThemeOverlay.MaterialComponents.ActionBar</item>
     </style>
+
+    <style name="AppButton" parent="Widget.MaterialComponents.Button">
+        <item name="android:fontFamily">@font/caviar_dreams_bold</item>
+    </style>
+
 
     <style name="CreditCard" parent="@style/Widget.MaterialComponents.CardView">
         <item name="cardCornerRadius">15dp</item>

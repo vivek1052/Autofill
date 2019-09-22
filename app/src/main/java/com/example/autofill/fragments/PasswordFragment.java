@@ -36,7 +36,6 @@ import java.util.List;
 public class PasswordFragment extends Fragment implements DataUpdateCallback {
     MainActivity mainActivity;
     PasswordAdapter adapter;
-    List<PasswordDataClass> passwordData;
     ListView listView;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -44,7 +43,7 @@ public class PasswordFragment extends Fragment implements DataUpdateCallback {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_password, container, false);
         listView = view.findViewById(R.id.password_ListView);
-        passwordData = mainActivity.dataModel.passwordData;
+        List<PasswordDataClass> passwordData = mainActivity.dataModel.passwordData;
         adapter = new PasswordAdapter(mainActivity,passwordData);
         listView.setAdapter(adapter);
         mainActivity.dataModel.addEventLister(this);
@@ -54,14 +53,14 @@ public class PasswordFragment extends Fragment implements DataUpdateCallback {
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Bundle bundle = new Bundle();
                 bundle.putSerializable("passwordData",(PasswordDataClass)adapterView.getItemAtPosition(i));
-                mainActivity.navController.navigate(R.id.action_home_menu_to_displayPasswordFragment,
+                mainActivity.navController.navigate(R.id.action_homeFragment_to_displayPasswordFragment,
                         bundle);
             }
         });
         view.findViewById(R.id.Fab_password).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mainActivity.navController.navigate(R.id.action_home_menu_to_newPasswordFragment);
+                mainActivity.navController.navigate(R.id.action_homeFragment_to_newPasswordFragment);
             }
         });
         return view;
@@ -103,13 +102,16 @@ public class PasswordFragment extends Fragment implements DataUpdateCallback {
 
 
     class onMultiSelect implements AbsListView.MultiChoiceModeListener{
-        List<PasswordDataClass> toBeDeleted = new ArrayList<>();
         @Override
         public void onItemCheckedStateChanged(ActionMode actionMode, int i, long l, boolean b) {
             if (b){
-                toBeDeleted.add(passwordData.get(i));
+                adapter.selectedItems.add((PasswordDataClass)adapter.getItem(i));
+                adapter.notifyDataSetChanged();
+                actionMode.setTitle(String.valueOf(adapter.selectedItems.size()));
             }else {
-                toBeDeleted.remove(passwordData.get(i));
+                adapter.selectedItems.remove(adapter.getItem(i));
+                adapter.notifyDataSetChanged();
+                actionMode.setTitle(String.valueOf(adapter.selectedItems.size()));
             }
         }
 
@@ -117,7 +119,6 @@ public class PasswordFragment extends Fragment implements DataUpdateCallback {
         public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
             MenuInflater menuInflater = actionMode.getMenuInflater();
             menuInflater.inflate(R.menu.contextual_menu, menu);
-            actionMode.setTitle("Select To Delete");
             return true;
         }
 
@@ -130,7 +131,7 @@ public class PasswordFragment extends Fragment implements DataUpdateCallback {
         public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
             switch (menuItem.getItemId()){
                 case R.id.delete_button:
-                    mainActivity.dataModel.deletePasswords(toBeDeleted);
+                    mainActivity.dataModel.deletePasswords(adapter.selectedItems);
                     mainActivity.dataModel.triggerPasswordDataUpdated();
                     actionMode.finish();
             }
@@ -139,7 +140,8 @@ public class PasswordFragment extends Fragment implements DataUpdateCallback {
 
         @Override
         public void onDestroyActionMode(ActionMode actionMode) {
-            toBeDeleted.clear();
+            adapter.selectedItems.clear();
+            adapter.notifyDataSetChanged();
         }
     }
 }

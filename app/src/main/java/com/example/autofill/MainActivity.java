@@ -12,6 +12,7 @@ import android.view.MenuItem;
 
 import com.example.autofill.util.CipherClass;
 import com.example.autofill.util.DataModel;
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.navigation.NavigationView;
 
 import androidx.annotation.NonNull;
@@ -51,10 +52,8 @@ public class MainActivity extends AppCompatActivity {
         dataModel = new DataModel(this);
         dataModel.retrieveAllData();
         cipherClass = new CipherClass();
-
         navController = Navigation.findNavController(this,R.id.nav_host_fragment);
         NavigationUI.setupActionBarWithNavController(this,navController);
-
 
         createNotificationChannel();
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -107,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()){
             case R.id.settings_menu:
-                navController.navigate(R.id.settingsFragment);
+                navController.navigate(R.id.action_homeFragment_to_settingsFragment);
                 break;
         }
         return super.onOptionsItemSelected(item);

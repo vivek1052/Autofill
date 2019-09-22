@@ -60,7 +60,7 @@ public class CardFragment extends Fragment implements DataUpdateCallback, Adapte
         view.findViewById(R.id.Fab_card).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mainActivity.navController.navigate(R.id.action_home_menu_to_newCardFragment);
+                mainActivity.navController.navigate(R.id.action_homeFragment_to_newCardFragment);
             }
         });
         return view;
@@ -128,13 +128,16 @@ public class CardFragment extends Fragment implements DataUpdateCallback, Adapte
     }
 
     class onMultiSelect implements AbsListView.MultiChoiceModeListener{
-        List<CardDataClass> toBeDeleted = new ArrayList<>();
         @Override
         public void onItemCheckedStateChanged(ActionMode actionMode, int i, long l, boolean b) {
             if (b){
-                toBeDeleted.add(mainActivity.dataModel.cardData.get(i));
+                adapter.selectedItems.add((CardDataClass)adapter.getItem(i));
+                adapter.notifyDataSetChanged();
+                actionMode.setTitle(String.valueOf(adapter.selectedItems.size()));
             }else {
-                toBeDeleted.remove(mainActivity.dataModel.cardData.get(i));
+                adapter.selectedItems.remove(adapter.getItem(i));
+                adapter.notifyDataSetChanged();
+                actionMode.setTitle(String.valueOf(adapter.selectedItems.size()));
             }
         }
 
@@ -142,7 +145,6 @@ public class CardFragment extends Fragment implements DataUpdateCallback, Adapte
         public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
             MenuInflater menuInflater = actionMode.getMenuInflater();
             menuInflater.inflate(R.menu.contextual_menu, menu);
-            actionMode.setTitle("Select To Delete");
             return true;
         }
 
@@ -155,7 +157,7 @@ public class CardFragment extends Fragment implements DataUpdateCallback, Adapte
         public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
             switch (menuItem.getItemId()){
                 case R.id.delete_button:
-                    mainActivity.dataModel.deleteCards(toBeDeleted);
+                    mainActivity.dataModel.deleteCards(adapter.selectedItems);
                     mainActivity.dataModel.triggerCardDataUpdated();
                     actionMode.finish();
             }
@@ -164,7 +166,8 @@ public class CardFragment extends Fragment implements DataUpdateCallback, Adapte
 
         @Override
         public void onDestroyActionMode(ActionMode actionMode) {
-
+            adapter.selectedItems.clear();
+            adapter.notifyDataSetChanged();
         }
     }
 }

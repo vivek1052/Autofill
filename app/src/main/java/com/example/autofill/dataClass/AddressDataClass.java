@@ -3,7 +3,7 @@ package com.example.autofill.dataClass;
 import java.io.Serializable;
 
 public class AddressDataClass implements Serializable {
-    int id;
+    public int id;
     public String name,flatNo, buildingName,streetNo, streetName,locality, city, state, postalCode, country, phoneNo;
 
     public AddressDataClass(int id, String name, String flatNo, String buildingName, String streetNo,

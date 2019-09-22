@@ -10,20 +10,35 @@
         android:label="AutoFill"
         tools:layout="@layout/fragment_home">
         <action
-            android:id="@+id/action_home_menu_to_newPasswordFragment"
-            app:destination="@id/newPasswordFragment" />
+            android:id="@+id/action_homeFragment_to_newPasswordFragment"
+            app:destination="@id/newPasswordFragment"
+            app:enterAnim="@anim/slide_in"
+            app:popExitAnim="@anim/slide_out"/>
         <action
-            android:id="@+id/action_home_menu_to_newAddressFragment"
-            app:destination="@id/newAddressFragment" />
+            android:id="@+id/action_homeFragment_to_newAddressFragment"
+            app:destination="@id/newAddressFragment"
+            app:enterAnim="@anim/slide_in"
+            app:popExitAnim="@anim/slide_out"/>
         <action
-            android:id="@+id/action_home_menu_to_newCardFragment"
-            app:destination="@id/newCardFragment" />
+            android:id="@+id/action_homeFragment_to_newCardFragment"
+            app:destination="@id/newCardFragment"
+            app:enterAnim="@anim/slide_in"
+            app:popExitAnim="@anim/slide_out"/>
         <action
-            android:id="@+id/action_home_menu_to_displayPasswordFragment"
-            app:destination="@id/displayPasswordFragment" />
+            android:id="@+id/action_homeFragment_to_displayPasswordFragment"
+            app:destination="@id/displayPasswordFragment"
+            app:enterAnim="@anim/slide_in"
+            app:popExitAnim="@anim/slide_out"/>
         <action
-            android:id="@+id/action_home_menu_to_newIdentityFragment"
-            app:destination="@id/newIdentityFragment" />
+            android:id="@+id/action_homeFragment_to_newIdentityFragment"
+            app:destination="@id/newIdentityFragment"
+            app:enterAnim="@anim/slide_in"
+            app:popExitAnim="@anim/slide_out"/>
+        <action
+            android:id="@+id/action_homeFragment_to_settingsFragment"
+            app:destination="@id/settingsFragment"
+            app:enterAnim="@anim/slide_in"
+            app:popExitAnim="@anim/slide_out"/>
     </fragment>
     <fragment
         android:id="@+id/newPasswordFragment"

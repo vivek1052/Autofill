@@ -1,14 +1,18 @@
 package com.example.autofill.fragments;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
+import android.view.ActionMode;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.ListView;
 
 import com.example.autofill.MainActivity;
@@ -41,10 +45,11 @@ public class AddressFragment extends Fragment implements DataUpdateCallback {
         view.findViewById(R.id.Fab_address).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mainActivity.navController.navigate(R.id.action_home_menu_to_newAddressFragment);
+                mainActivity.navController.navigate(R.id.action_homeFragment_to_newAddressFragment);
             }
         });
         mainActivity.dataModel.addEventLister(this);
+        listView.setMultiChoiceModeListener(new onMultiSelect());
         return view;
     }
 
@@ -80,5 +85,49 @@ public class AddressFragment extends Fragment implements DataUpdateCallback {
     @Override
     public void IdentityDataUpdated(List<IdentityDataClass> updatedData) {
 
+    }
+
+    class onMultiSelect implements AbsListView.MultiChoiceModeListener{
+        @Override
+        public void onItemCheckedStateChanged(ActionMode actionMode, int i, long l, boolean b) {
+            if (b){
+                adapter.selectedItems.add((AddressDataClass) adapter.getItem(i));
+                adapter.notifyDataSetChanged();
+                actionMode.setTitle(String.valueOf(adapter.selectedItems.size()));
+            }else {
+                adapter.selectedItems.remove(adapter.getItem(i));
+                adapter.notifyDataSetChanged();
+                actionMode.setTitle(String.valueOf(adapter.selectedItems.size()));
+            }
+        }
+
+        @Override
+        public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
+            MenuInflater menuInflater = actionMode.getMenuInflater();
+            menuInflater.inflate(R.menu.contextual_menu, menu);
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
+            return false;
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
+            switch (menuItem.getItemId()){
+                case R.id.delete_button:
+                    mainActivity.dataModel.deleteAddress(adapter.selectedItems);
+                    mainActivity.dataModel.triggerAddressDataUpdated();
+                    actionMode.finish();
+            }
+            return true;
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode actionMode) {
+            adapter.selectedItems.clear();
+            adapter.notifyDataSetChanged();
+        }
     }
 }

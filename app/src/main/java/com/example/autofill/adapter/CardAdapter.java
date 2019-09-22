@@ -17,10 +17,9 @@ import java.util.List;
 
 public class CardAdapter extends ArrayAdapter {
     private Context context;
-    private List<CardDataClass> cardData;
+    public List<CardDataClass> selectedItems = new ArrayList<>();
     public CardAdapter(Context context, List<CardDataClass> cardData) {
         super(context,R.layout.card_row, cardData);
-        this.cardData = cardData;
         this.context = context;
     }
 
@@ -34,9 +33,14 @@ public class CardAdapter extends ArrayAdapter {
         }else{
             binding = (CardRowBinding) convertView.getTag();
         }
-        binding.setCardData(cardData.get(position));
-        binding.setEditable(false);
-//        binding.setVisibility(View.GONE);
+        CardDataClass viewData = (CardDataClass)getItem(position);
+
+        if (selectedItems.contains(viewData)){
+            binding.getRoot().setBackgroundColor(R.attr.colorPrimary);
+        }else {
+            binding.getRoot().setBackgroundColor(0x00000000);
+        }
+        binding.setCardData(viewData);
         return binding.getRoot();
     }
 }

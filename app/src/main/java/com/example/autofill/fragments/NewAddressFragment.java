@@ -4,10 +4,13 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -28,9 +31,17 @@ public class NewAddressFragment extends Fragment implements View.OnClickListener
         // Inflate the layout for this fragment
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_new_address, container, false);
         binding.addressSave.setOnClickListener(this);
+        setHasOptionsMenu(true);
         return binding.getRoot();
     }
 
+    @Override
+    public void onPrepareOptionsMenu(@NonNull Menu menu) {
+        MenuItem menuItem = menu.findItem(R.id.settings_menu);
+        if (menuItem != null){
+            menuItem.setVisible(false);
+        }
+    }
 
     @Override
     public void onAttach(Context context) {

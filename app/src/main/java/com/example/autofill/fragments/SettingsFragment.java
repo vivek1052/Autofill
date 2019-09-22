@@ -84,7 +84,16 @@ public class SettingsFragment extends Fragment {
         getFragmentManager().beginTransaction().add(
                 R.id.setting_frameLayout, new settingsPreferenceFrag()).commit();
         PreferenceManager.setDefaultValues(mainActivity, R.xml.settings_preference, false);
+        setHasOptionsMenu(true);
         return view;
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(@NonNull Menu menu) {
+        MenuItem menuItem = menu.findItem(R.id.settings_menu);
+        if (menuItem != null){
+            menuItem.setVisible(false);
+        }
     }
 
     @Override

@@ -4,12 +4,6 @@
         <variable
             name="cardData"
             type="com.example.autofill.dataClass.CardDataClass" />
-        <variable
-            name="editable"
-            type="Boolean" />
-        <variable
-            name="visible"
-            type="int" />
     </data>
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:orientation="vertical"

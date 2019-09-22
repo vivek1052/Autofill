@@ -9,6 +9,8 @@ import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -77,7 +79,16 @@ public class NewIdentityFragment extends Fragment implements View.OnClickListene
             }
         });
         binding.identitySave.setOnClickListener(this);
+        setHasOptionsMenu(true);
         return view;
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(@NonNull Menu menu) {
+        MenuItem menuItem = menu.findItem(R.id.settings_menu);
+        if (menuItem != null){
+            menuItem.setVisible(false);
+        }
     }
 
     @Override

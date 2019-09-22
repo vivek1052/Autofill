@@ -16,16 +16,16 @@ import com.example.autofill.dataClass.AddressDataClass;
 import com.example.autofill.databinding.AddressRowBinding;
 
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class AddressAdapter extends ArrayAdapter {
 
-    private List<AddressDataClass> dataList;
+    public List<AddressDataClass> selectedItems = new ArrayList<>();
     private Context context;
 
     public AddressAdapter(Context context, List<AddressDataClass> dataList) {
         super(context, R.layout.address_row, dataList);
-        this.dataList = dataList;
         this.context = context;
     }
 
@@ -40,7 +40,14 @@ public class AddressAdapter extends ArrayAdapter {
         }else{
             binding = (AddressRowBinding) convertView.getTag();
         }
-        binding.setAddressData(dataList.get(position));
+        AddressDataClass viewData = (AddressDataClass)getItem(position);
+
+        if (selectedItems.contains(viewData)){
+            binding.getRoot().setBackgroundColor(R.attr.colorAccent);
+        }else {
+            binding.getRoot().setBackgroundColor(0x00000000);
+        }
+        binding.setAddressData(viewData);
         return binding.getRoot();
     }
 }

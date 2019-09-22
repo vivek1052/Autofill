@@ -104,6 +104,18 @@ public class DataModel {
         }
     }
 
+    public void deleteAddress(List<AddressDataClass> toBeDeleted){
+        for (int i=0; i<toBeDeleted.size();i++){
+            dbHelper.deleteAddress(toBeDeleted.get(i).id);
+        }
+    }
+
+    public void deleteIdentity(List<IdentityDataClass> toBeDeleted){
+        for (int i=0; i<toBeDeleted.size();i++){
+            dbHelper.deleteIdentity(toBeDeleted.get(i).id);
+        }
+    }
+
     public List<InstalledApps> getInstalledApps(){
         PackageManager pm = context.getPackageManager();
         List<ApplicationInfo> l = pm.getInstalledApplications(PackageManager.GET_META_DATA);

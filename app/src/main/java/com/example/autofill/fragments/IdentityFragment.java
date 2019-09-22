@@ -7,9 +7,14 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import android.view.ActionMode;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
@@ -55,10 +60,11 @@ public class IdentityFragment extends Fragment implements DataUpdateCallback, Ad
         view.findViewById(R.id.Fab_identity).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mainActivity.navController.navigate(R.id.action_home_menu_to_newIdentityFragment);
+                mainActivity.navController.navigate(R.id.action_homeFragment_to_newIdentityFragment);
             }
         });
         listView.setOnItemClickListener(this);
+        listView.setMultiChoiceModeListener(new onMultiSelect());
         return view;
     }
 
@@ -115,5 +121,49 @@ public class IdentityFragment extends Fragment implements DataUpdateCallback, Ad
 
             }
         });
+    }
+
+    class onMultiSelect implements AbsListView.MultiChoiceModeListener{
+        @Override
+        public void onItemCheckedStateChanged(ActionMode actionMode, int i, long l, boolean b) {
+            if (b){
+                adapter.selectedItems.add((IdentityDataClass) adapter.getItem(i));
+                adapter.notifyDataSetChanged();
+                actionMode.setTitle(String.valueOf(adapter.selectedItems.size()));
+            }else {
+                adapter.selectedItems.remove(adapter.getItem(i));
+                adapter.notifyDataSetChanged();
+                actionMode.setTitle(String.valueOf(adapter.selectedItems.size()));
+            }
+        }
+
+        @Override
+        public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
+            MenuInflater menuInflater = actionMode.getMenuInflater();
+            menuInflater.inflate(R.menu.contextual_menu, menu);
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
+            return false;
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
+            switch (menuItem.getItemId()){
+                case R.id.delete_button:
+                    mainActivity.dataModel.deleteIdentity(adapter.selectedItems);
+                    mainActivity.dataModel.triggerIdentityDataUpdated();
+                    actionMode.finish();
+            }
+            return true;
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode actionMode) {
+            adapter.selectedItems.clear();
+            adapter.notifyDataSetChanged();
+        }
     }
 }

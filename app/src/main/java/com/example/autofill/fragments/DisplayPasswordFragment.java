@@ -11,6 +11,8 @@ import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -68,9 +70,17 @@ public class DisplayPasswordFragment extends Fragment implements View.OnClickLis
             e.printStackTrace();
         }
         binding.passwordDecrypt.setOnClickListener(this);
+        setHasOptionsMenu(true);
         return binding.getRoot();
     }
 
+    @Override
+    public void onPrepareOptionsMenu(@NonNull Menu menu) {
+        MenuItem menuItem = menu.findItem(R.id.settings_menu);
+        if (menuItem != null){
+            menuItem.setVisible(false);
+        }
+    }
 
     @Override
     public void onAttach(@NonNull Context context) {

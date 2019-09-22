@@ -9,6 +9,8 @@ import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -46,7 +48,16 @@ public class NewCardFragment extends Fragment implements View.OnClickListener{
                 R.array.card_types, android.R.layout.simple_spinner_item);
         cardTypeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         binding.cardType.setAdapter(cardTypeAdapter);
+        setHasOptionsMenu(true);
         return view;
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(@NonNull Menu menu) {
+        MenuItem menuItem = menu.findItem(R.id.settings_menu);
+        if (menuItem != null){
+            menuItem.setVisible(false);
+        }
     }
 
     @Override

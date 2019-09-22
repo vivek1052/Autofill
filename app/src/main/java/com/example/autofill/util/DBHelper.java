@@ -230,4 +230,15 @@ public class DBHelper extends SQLiteOpenHelper {
         }
         return identityData;
     }
+
+    public int deleteAddress(int id) {
+        SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
+        return sqLiteDatabase.delete(Contract.Address.TABLE_NAME,"id = ?", new String[]{Integer.toString(id)});
+    }
+
+    public int deleteIdentity(int id){
+        SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
+        return sqLiteDatabase.delete(Contract.Identity.TABLE_NAME,"id = ?", new String[]{Integer.toString(id)});
+
+    }
 }
